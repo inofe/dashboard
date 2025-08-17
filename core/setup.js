@@ -9,13 +9,22 @@ async function setupDatabase() {
         await initDB();
         console.log('Database tabloları oluşturuldu.');
 
-        // uploads klasörünü oluştur
-        const uploadsPath = path.join(__dirname, 'uploads');
+        // uploads klasörlerini oluştur
+        const uploadsPath = path.join(__dirname, '..', 'uploads');
+        const cmsUploadsPath = path.join(uploadsPath, 'cms');
+        
         if (!fs.existsSync(uploadsPath)) {
             fs.mkdirSync(uploadsPath, { recursive: true });
             console.log('uploads klasörü oluşturuldu:', uploadsPath);
         } else {
             console.log('uploads klasörü zaten mevcut.');
+        }
+        
+        if (!fs.existsSync(cmsUploadsPath)) {
+            fs.mkdirSync(cmsUploadsPath, { recursive: true });
+            console.log('uploads/cms klasörü oluşturuldu:', cmsUploadsPath);
+        } else {
+            console.log('uploads/cms klasörü zaten mevcut.');
         }
 
         // Varsayılan admin kullanıcısı kontrol et - ENV'den şifre al
