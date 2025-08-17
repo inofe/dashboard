@@ -1,15 +1,14 @@
 version: '3.8'
 
 services:
-  admin-panel:
-    build: .
-    container_name: admin-panel
-    ports:
-      - "${EXTERNAL_PORT:-3000}:${PORT:-3000}"
-    environment:
-      - NODE_ENV=production
-      - HOST=0.0.0.0
-      - PORT=${PORT:-3000}
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      -.env
+    expose:
+      - "${PORT}"
     volumes:
       - ./uploads:/app/uploads
       - ./logs:/app/logs
