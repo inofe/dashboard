@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="tr" class="h-full bg-gray-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İçerik Yönetimi | Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="h-full">
+    <div class="min-h-full">
+        <%- include('../../../views/partials/dashboard-header', { currentPage: 'cms', user: user }) %>
+
+        <!-- Main content -->
+        <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <div class="px-4 py-6 sm:px-0">
+                
+                <!-- Header -->
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">
+                        <i class="fas fa-edit mr-3 text-indigo-600"></i>
+                        İçerik Yönetimi Dashboard
+                    </h2>
+                    <p class="text-gray-600">Sayfalarınızı ve blog yazılarınızı buradan yönetebilirsiniz.</p>
+                </div>
+
+                <!-- İstatistik Kartları -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <!-- Sayfalar -->
+                    <div class="bg-white overflow-hidden shadow rounded-lg">
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-file-text text-3xl text-blue-500"></i>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">Toplam Sayfa</dt>
+                                        <dd class="text-lg font-medium text-gray-900"><%= stats.pages || 0 %></dd>
+                                    </dl>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <a href="/dashboard/cms/pages" class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
+                                    Sayfaları Görüntüle →
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Blog Yazıları -->
+                    <div class="bg-white overflow-hidden shadow rounded-lg">
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-blog text-3xl text-green-500"></i>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">Blog Yazısı</dt>
+                                        <dd class="text-lg font-medium text-gray-900"><%= stats.posts || 0 %></dd>
+                                    </dl>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <a href="/dashboard/cms/posts" class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
+                                    Blog Yazılarını Görüntüle →
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Medya Dosyaları -->
+                    <div class="bg-white overflow-hidden shadow rounded-lg">
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-images text-3xl text-purple-500"></i>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">Medya Dosyası</dt>
+                                        <dd class="text-lg font-medium text-gray-900"><%= stats.media || 0 %></dd>
+                                    </dl>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <a href="/dashboard/cms/media" class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
+                                    Medya Library →
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hızlı Eylemler -->
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="px-6 py-8">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-6">
+                            <i class="fas fa-bolt mr-2 text-indigo-600"></i>
+                            Hızlı İşlemler
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <!-- Yeni Sayfa -->
+                            <a href="/dashboard/cms/pages/create" class="bg-blue-50 hover:bg-blue-100 p-6 rounded-lg border border-blue-200 transition-colors group">
+                                <div class="text-center">
+                                    <i class="fas fa-plus-circle text-2xl text-blue-600 mb-3 group-hover:scale-110 transition-transform"></i>
+                                    <h4 class="font-medium text-blue-900">Yeni Sayfa</h4>
+                                    <p class="text-sm text-blue-600 mt-1">Statik sayfa oluştur</p>
+                                </div>
+                            </a>
+
+                            <!-- Yeni Blog Yazısı -->
+                            <a href="/dashboard/cms/posts/create" class="bg-green-50 hover:bg-green-100 p-6 rounded-lg border border-green-200 transition-colors group">
+                                <div class="text-center">
+                                    <i class="fas fa-pen-fancy text-2xl text-green-600 mb-3 group-hover:scale-110 transition-transform"></i>
+                                    <h4 class="font-medium text-green-900">Yeni Blog Yazısı</h4>
+                                    <p class="text-sm text-green-600 mt-1">Blog yazısı yaz</p>
+                                </div>
+                            </a>
+
+                            <!-- Medya Yükle -->
+                            <a href="/dashboard/cms/media" class="bg-purple-50 hover:bg-purple-100 p-6 rounded-lg border border-purple-200 transition-colors group">
+                                <div class="text-center">
+                                    <i class="fas fa-upload text-2xl text-purple-600 mb-3 group-hover:scale-110 transition-transform"></i>
+                                    <h4 class="font-medium text-purple-900">Medya Yükle</h4>
+                                    <p class="text-sm text-purple-600 mt-1">Resim/dosya ekle</p>
+                                </div>
+                            </a>
+
+                            <!-- Ayarlar -->
+                            <a href="/dashboard/settings" class="bg-gray-50 hover:bg-gray-100 p-6 rounded-lg border border-gray-200 transition-colors group">
+                                <div class="text-center">
+                                    <i class="fas fa-cog text-2xl text-gray-600 mb-3 group-hover:scale-110 transition-transform"></i>
+                                    <h4 class="font-medium text-gray-900">CMS Ayarları</h4>
+                                    <p class="text-sm text-gray-600 mt-1">Modül ayarları</p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Son Aktiviteler (Placeholder) -->
+                <div class="mt-8 bg-white overflow-hidden shadow rounded-lg">
+                    <div class="px-6 py-8">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-6">
+                            <i class="fas fa-clock mr-2 text-indigo-600"></i>
+                            Son Aktiviteler
+                        </h3>
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-history text-4xl mb-4"></i>
+                            <p>Henüz aktivite yok</p>
+                            <p class="text-sm">İçerik oluşturmaya başladığınızda burada görünecek</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+</body>
+</html>

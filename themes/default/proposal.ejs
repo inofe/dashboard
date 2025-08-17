@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="tr" class="h-full bg-gray-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proje Teklifi | <%= proposal.title %></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="h-full">
+    <div class="min-h-full bg-gradient-to-br from-blue-50 to-indigo-100">
+        <!-- Header -->
+        <header class="bg-white shadow-sm">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <% if (settings.company_logo) { %>
+                        <img src="<%= settings.company_logo %>" alt="Logo" class="h-12 w-auto object-contain">
+                        <% } else { %>
+                        <div class="h-12 w-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-building text-indigo-600 text-xl"></i>
+                        </div>
+                        <% } %>
+                        <div>
+                            <h1 class="text-xl font-bold text-gray-900">
+                                <%= settings.company_name || 'Şirket Adı' %>
+                            </h1>
+                            <p class="text-sm text-gray-600">Proje Teklifi</p>
+                        </div>
+                    </div>
+                    <div class="text-right text-sm text-gray-600">
+                        <p><i class="fas fa-calendar mr-1"></i><%= new Date().toLocaleDateString('tr-TR') %></p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+                <!-- Proposal Header -->
+                <div class="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-8 text-white">
+                    <h2 class="text-2xl font-bold mb-2"><%= proposal.title %></h2>
+                    <p class="text-indigo-100">
+                        <i class="fas fa-user mr-2"></i>
+                        Sayın <%= proposal.customer_name %>
+                    </p>
+                </div>
+
+                <!-- Success/Error Messages -->
+                <% if (message) { %>
+                <div class="<%= success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200' %> border-l-4 p-4 m-6">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas <%= success ? 'fa-check-circle text-green-400' : 'fa-exclamation-circle text-red-400' %>"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm <%= success ? 'text-green-800' : 'text-red-800' %>"><%= message %></p>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
+
+                <!-- Proposal Details -->
+                <div class="px-6 py-8">
+                    <!-- Project Info -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="text-sm font-medium text-gray-500 mb-2">
+                                <i class="fas fa-money-bill-wave mr-2"></i>Proje Bedeli
+                            </h3>
+                            <p class="text-2xl font-bold text-gray-900">
+                                <% if (proposal.price) { %>
+                                    ₺<%= parseFloat(proposal.price).toLocaleString('tr-TR') %>
+                                <% } else { %>
+                                    Görüşülecek
+                                <% } %>
+                            </p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="text-sm font-medium text-gray-500 mb-2">
+                                <i class="fas fa-clock mr-2"></i>Teslim Süresi
+                            </h3>
+                            <p class="text-2xl font-bold text-gray-900">
+                                <%= proposal.duration || 'Belirtilmedi' %>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Project Description -->
+                    <div class="mb-8">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-900">
+                                <i class="fas fa-file-alt mr-2 text-indigo-600"></i>
+                                Proje Detayları
+                            </h3>
+                            <button type="button" id="pdfButton"
+                                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                <i class="fas fa-file-pdf mr-2"></i>PDF İndir
+                            </button>
+                        </div>
+                        <div class="prose max-w-none">
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <p class="text-gray-800 whitespace-pre-line leading-relaxed">
+                                    <%= proposal.description || 'Proje detayları belirtilmemiş.' %>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Customer Response Section -->
+                    <% if (!hasResponded) { %>
+                    <div class="border-t pt-8">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                            <i class="fas fa-comment-dots mr-2 text-indigo-600"></i>
+                            Geri Bildiriminiz
+                        </h3>
+                        <p class="text-gray-600 mb-6">Bu teklife ilişkin düşüncelerinizi bizimle paylaşın:</p>
+                        
+                        <form method="POST" action="/proposal/<%= proposal.id %>/response" class="space-y-6">
+                            <!-- Response Type -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-3">Cevabınız:</label>
+                                <div class="space-y-3">
+                                    <label class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                        <input type="radio" name="response_type" value="accepted" class="h-4 w-4 text-green-600 border-gray-300 focus:ring-green-500">
+                                        <div class="ml-3">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                                                <span class="text-sm font-medium text-gray-900">Teklifi kabul ediyorum</span>
+                                            </div>
+                                            <p class="text-sm text-gray-500">Teklif şartlarını uygun buluyorum, çalışmaya başlayabiliriz</p>
+                                        </div>
+                                    </label>
+                                    
+                                    <label class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                        <input type="radio" name="response_type" value="revision" class="h-4 w-4 text-yellow-600 border-gray-300 focus:ring-yellow-500">
+                                        <div class="ml-3">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-edit text-yellow-600 mr-2"></i>
+                                                <span class="text-sm font-medium text-gray-900">Revizyon istiyorum</span>
+                                            </div>
+                                            <p class="text-sm text-gray-500">Bazı değişiklikler yapılmasını istiyorum</p>
+                                        </div>
+                                    </label>
+                                    
+                                </div>
+                            </div>
+
+                            <!-- Additional Message -->
+                            <div>
+                                <label for="message" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Ek Mesajınız (Opsiyonel)
+                                </label>
+                                <textarea 
+                                    id="message" 
+                                    name="message" 
+                                    rows="4" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                    placeholder="Ek açıklamalarınızı buraya yazabilirsiniz..."
+                                ></textarea>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="flex justify-end">
+                                <button 
+                                    type="submit" 
+                                    class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-8 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                >
+                                    <i class="fas fa-paper-plane mr-2"></i>
+                                    Geri Bildirim Gönder
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <% } else { %>
+                    <!-- Already Responded -->
+                    <div class="border-t pt-8">
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+                            <i class="fas fa-check-circle text-blue-600 text-3xl mb-4"></i>
+                            <h3 class="text-lg font-semibold text-blue-900 mb-2">Geri Bildiriminiz Alındı</h3>
+                            <p class="text-blue-700">Bu teklif için zaten geri bildirim gönderdiniz. En kısa sürede size dönüş yapacağız.</p>
+                        </div>
+                    </div>
+                    <% } %>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-white border-t mt-12">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <div class="text-center text-sm text-gray-600">
+                    <div class="flex items-center justify-center space-x-6">
+                        <% if (settings.contact_email) { %>
+                        <a href="mailto:<%= settings.contact_email %>" class="hover:text-indigo-600">
+                            <i class="fas fa-envelope mr-1"></i><%= settings.contact_email %>
+                        </a>
+                        <% } %>
+                        <% if (settings.contact_phone) { %>
+                        <span><i class="fas fa-phone mr-1"></i><%= settings.contact_phone %></span>
+                        <% } %>
+                        <% if (settings.website) { %>
+                        <a href="<%= settings.website %>" target="_blank" class="hover:text-indigo-600">
+                            <i class="fas fa-globe mr-1"></i>Website
+                        </a>
+                        <% } %>
+                    </div>
+                    <p class="mt-2 text-gray-500">
+                        © <%= new Date().getFullYear() %> <%= settings.company_name || 'Şirket Adı' %>. Tüm hakları saklıdır.
+                    </p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // PDF Print function
+        document.addEventListener('DOMContentLoaded', function() {
+            const pdfButton = document.getElementById('pdfButton');
+            if (pdfButton) {
+                pdfButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    try {
+                        window.print();
+                    } catch (error) {
+                        console.error('Print error:', error);
+                        alert('Print işlemi başlatılamadı. Tarayıcınızın print özelliğini kullanın.');
+                    }
+                });
+            }
+        });
+
+        // Form validation
+        document.querySelector('form')?.addEventListener('submit', function(e) {
+            const responseType = document.querySelector('input[name="response_type"]:checked');
+            if (!responseType) {
+                e.preventDefault();
+                alert('Lütfen bir seçenek belirtin.');
+                return false;
+            }
+        });
+
+        // Auto-select response type when clicked on label
+        document.querySelectorAll('input[name="response_type"]').forEach(input => {
+            input.addEventListener('change', function() {
+                // Remove active styling from all labels
+                document.querySelectorAll('label').forEach(label => {
+                    label.classList.remove('ring-2', 'ring-indigo-500', 'border-indigo-500');
+                });
+                
+                // Add active styling to selected label
+                this.closest('label').classList.add('ring-2', 'ring-indigo-500', 'border-indigo-500');
+            });
+        });
+    </script>
+    
+    <!-- Print Styles -->
+    <style>
+        @media print {
+            body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
+            nav, footer, button, .no-print { display: none !important; }
+            .main-content { margin: 0; padding: 0; }
+            .bg-gradient-to-r { background: #4f46e5 !important; color: white !important; }
+            .shadow-lg, .shadow { box-shadow: none !important; }
+        }
+    </style>
+</body>
+</html>

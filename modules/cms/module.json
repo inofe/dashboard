@@ -1,0 +1,103 @@
+{
+  "name": "cms",
+  "displayName": "İçerik Yönetimi",
+  "description": "Sayfa ve blog yazılarınızı yönetin, medya library kullanın",
+  "version": "1.0.0",
+  "core": true,
+  "category": "content",
+  "routes": {
+    "/cms": {
+      "method": "GET",
+      "handler": "routes.js",
+      "description": "CMS ana sayfa"
+    },
+    "/cms/pages": {
+      "method": ["GET", "POST"],
+      "handler": "routes.js",
+      "description": "Sayfa yönetimi"
+    },
+    "/cms/pages/create": {
+      "method": ["GET", "POST"],
+      "handler": "routes.js",
+      "description": "Yeni sayfa oluştur"
+    },
+    "/cms/pages/edit/:id": {
+      "method": ["GET", "POST"],
+      "handler": "routes.js",
+      "description": "Sayfa düzenle"
+    },
+    "/cms/posts": {
+      "method": ["GET", "POST"],
+      "handler": "routes.js",
+      "description": "Blog yazı yönetimi"
+    },
+    "/cms/posts/create": {
+      "method": ["GET", "POST"],
+      "handler": "routes.js",
+      "description": "Yeni blog yazısı"
+    },
+    "/cms/media": {
+      "method": ["GET", "POST"],
+      "handler": "routes.js",
+      "description": "Medya library"
+    }
+  },
+  "database": {
+    "tables": ["cms_pages", "cms_posts", "cms_media"],
+    "migrations": []
+  },
+  "settings": {
+    "blog_enabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "Blog sistemi aktif"
+    },
+    "pages_enabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "Sayfa yönetimi aktif"
+    },
+    "media_library_enabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "Medya library aktif"
+    },
+    "auto_save": {
+      "type": "boolean",
+      "default": false,
+      "description": "Otomatik kaydetme"
+    }
+  },
+  "menuItems": [
+    {
+      "title": "İçerik Yönetimi",
+      "url": "/dashboard/cms",
+      "icon": "fas fa-edit",
+      "order": 20,
+      "children": [
+        {
+          "title": "Sayfalar",
+          "url": "/dashboard/cms/pages"
+        },
+        {
+          "title": "Blog Yazıları", 
+          "url": "/dashboard/cms/posts"
+        },
+        {
+          "title": "Medya Library",
+          "url": "/dashboard/cms/media"
+        }
+      ]
+    }
+  ],
+  "permissions": {
+    "view": ["admin", "editor"],
+    "create": ["admin", "editor"],
+    "edit": ["admin", "editor"],
+    "delete": ["admin"]
+  },
+  "dependencies": {
+    "core": ["auth", "database"],
+    "modules": []
+  }
+}

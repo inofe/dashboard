@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog | <%= siteName %></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <%- include('partials/public-header', { currentPage: 'blog', siteName: siteName, pages: pages }) %>
+
+    <!-- Page Header -->
+    <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            <h1 class="text-4xl font-bold mb-4">Blog</h1>
+            <p class="text-xl">En güncel yazılarımızı keşfedin</p>
+        </div>
+    </div>
+
+    <!-- Blog Posts -->
+    <div class="max-w-6xl mx-auto px-4 py-16">
+        <% if (posts.length > 0) { %>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <% posts.forEach(post => { %>
+            <article class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                <div class="p-8">
+                    <div class="flex items-center text-sm text-gray-500 mb-4">
+                        <i class="fas fa-calendar mr-2"></i>
+                        <span><%= new Date(post.created_at).toLocaleDateString('tr-TR') %></span>
+                        <% if (post.tags) { %>
+                            <span class="mx-2">•</span>
+                            <i class="fas fa-tags mr-2"></i>
+                            <span><%= post.tags %></span>
+                        <% } %>
+                    </div>
+                    
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">
+                        <a href="/blog/<%= post.slug %>" class="hover:text-blue-600 transition-colors">
+                            <%= post.title %>
+                        </a>
+                    </h2>
+                    
+                    <% if (post.excerpt) { %>
+                    <p class="text-gray-600 mb-6"><%= post.excerpt %></p>
+                    <% } else { %>
+                    <p class="text-gray-600 mb-6"><%= post.content.substring(0, 200).replace(/<[^>]*>/g, '') %>...</p>
+                    <% } %>
+                    
+                    <a href="/blog/<%= post.slug %>" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold transition-colors">
+                        Devamını Oku
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </article>
+            <% }); %>
+        </div>
+        <% } else { %>
+        <div class="text-center py-16">
+            <i class="fas fa-blog text-gray-400 text-6xl mb-6"></i>
+            <h3 class="text-2xl font-semibold text-gray-600 mb-4">Henüz blog yazısı yok</h3>
+            <p class="text-gray-500">En kısa sürede içerik paylaşmaya başlayacağız.</p>
+        </div>
+        <% } %>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center">
+                <h3 class="text-xl font-bold mb-4"><%= siteName %></h3>
+                <p class="text-gray-400 mb-6">Blog sayfamızda en güncel içeriklerimizi takip edebilirsiniz.</p>
+                <a href="/" class="text-blue-400 hover:text-blue-300 transition-colors">
+                    ← Ana Sayfaya Dön
+                </a>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; <%= new Date().getFullYear() %> <%= siteName %>. Tüm hakları saklıdır.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

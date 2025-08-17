@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="tr" class="h-full bg-gray-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Yazıları | CMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="h-full">
+    <div class="min-h-full">
+        <!-- Navigation -->
+        <nav class="bg-white shadow-sm border-b">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex items-center">
+                        <a href="/dashboard/cms" class="text-xl font-semibold text-gray-900">
+                            <i class="fas fa-arrow-left mr-2"></i>CMS
+                        </a>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-sm text-gray-700">Hoş geldin, <strong><%= user.username %></strong></span>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <div class="px-4 py-6 sm:px-0">
+                
+                <!-- Header -->
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">
+                            <i class="fas fa-blog mr-3 text-indigo-600"></i>
+                            Blog Yazıları
+                        </h2>
+                        <p class="text-gray-600">Blog yazılarınızı yönetin</p>
+                    </div>
+                    <a href="/dashboard/cms/posts/create" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                        <i class="fas fa-plus mr-2"></i>
+                        Yeni Blog Yazısı
+                    </a>
+                </div>
+
+                <!-- Mesajlar -->
+                <% if (message) { %>
+                <div class="<%= success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200' %> border rounded-md p-4 mb-6">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas <%= success ? 'fa-check-circle text-green-400' : 'fa-exclamation-circle text-red-400' %>"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium <%= success ? 'text-green-800' : 'text-red-800' %>"><%= message %></p>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
+
+                <!-- Blog Yazıları Listesi -->
+                <div class="bg-white shadow overflow-hidden sm:rounded-md">
+                    <% if (posts && posts.length > 0) { %>
+                    <ul class="divide-y divide-gray-200">
+                        <% posts.forEach(post => { %>
+                        <li>
+                            <div class="px-4 py-4 flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10">
+                                        <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                                            <i class="fas fa-blog text-green-600"></i>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">
+                                            <%= post.title %>
+                                        </div>
+                                        <div class="text-sm text-gray-500">
+                                            Slug: <%= post.slug %> | Durum: <%= post.status %> 
+                                            <% if (post.published_at) { %>
+                                                | Yayın: <%= new Date(post.published_at).toLocaleDateString('tr-TR') %>
+                                            <% } %>
+                                        </div>
+                                        <% if (post.excerpt) { %>
+                                        <div class="text-sm text-gray-400 mt-1">
+                                            <%= post.excerpt.substring(0, 100) %>...
+                                        </div>
+                                        <% } %>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <a href="/dashboard/cms/posts/edit/<%= post.id %>" class="text-indigo-600 hover:text-indigo-900 text-sm">
+                                        <i class="fas fa-edit mr-1"></i>Düzenle
+                                    </a>
+                                    <form method="POST" action="/dashboard/cms/posts/delete/<%= post.id %>" class="inline" onsubmit="return confirm('Bu blog yazısını silmek istediğinizden emin misiniz?')">
+                                        <button type="submit" class="text-red-600 hover:text-red-900 text-sm">
+                                            <i class="fas fa-trash mr-1"></i>Sil
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </li>
+                        <% }); %>
+                    </ul>
+                    <% } else { %>
+                    <!-- Boş Durum -->
+                    <div class="text-center py-12">
+                        <i class="fas fa-blog text-gray-400 text-6xl mb-4"></i>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">Henüz blog yazısı yok</h3>
+                        <p class="text-gray-500 mb-6">İlk blog yazınızı oluşturmaya başlayın</p>
+                        <a href="/dashboard/cms/posts/create" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                            <i class="fas fa-plus mr-2"></i>
+                            İlk Blog Yazısını Oluştur
+                        </a>
+                    </div>
+                    <% } %>
+                </div>
+
+            </div>
+        </main>
+    </div>
+</body>
+</html>

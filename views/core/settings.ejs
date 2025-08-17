@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="tr" class="h-full bg-gray-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayarlar | Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="h-full">
+    <div class="min-h-full">
+        <%- include('../partials/dashboard-header', { currentPage: 'settings', user: user }) %>
+
+        <!-- Main content -->
+        <main class="max-w-6xl mx-auto py-6 sm:px-6 lg:px-8">
+            <div class="px-4 py-6 sm:px-0">
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="px-6 py-8">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-6">
+                            <i class="fas fa-cog mr-2 text-indigo-600"></i>
+                            Sistem Ayarları
+                        </h3>
+
+                        <!-- Tab Navigation -->
+                        <div class="border-b border-gray-200 mb-6">
+                            <nav class="-mb-px flex space-x-8">
+                                <button type="button" data-tab="general" id="tab-general" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm cursor-pointer">
+                                    <i class="fas fa-building mr-2"></i>Genel
+                                </button>
+                                <button type="button" data-tab="modules" id="tab-modules" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm cursor-pointer">
+                                    <i class="fas fa-puzzle-piece mr-2"></i>Modüller
+                                </button>
+                                <button type="button" data-tab="theme" id="tab-theme" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm cursor-pointer">
+                                    <i class="fas fa-palette mr-2"></i>Tema
+                                </button>
+                            </nav>
+                        </div>
+
+                        <% if (message) { %>
+                        <div class="<%= success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200' %> border rounded-md p-4 mb-6">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas <%= success ? 'fa-check-circle text-green-400' : 'fa-exclamation-circle text-red-400' %>"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm font-medium <%= success ? 'text-green-800' : 'text-red-800' %>"><%= message %></p>
+                                </div>
+                            </div>
+                        </div>
+                        <% } %>
+
+                        <form method="POST" action="/dashboard/settings" enctype="multipart/form-data" class="space-y-8">
+                            
+                            <!-- GENEL AYARLAR TAB -->
+                            <div id="content-general" class="tab-content space-y-6">
+                                <!-- Company Logo -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-4">
+                                        <i class="fas fa-image mr-2"></i>Şirket Logosu
+                                    </label>
+                                    
+                                    <!-- Current Logo -->
+                                    <% if (settings.company_logo) { %>
+                                    <div class="mb-4">
+                                        <p class="text-sm text-gray-600 mb-2">Mevcut logo:</p>
+                                        <div class="w-32 h-32 border border-gray-300 rounded-lg p-4 bg-gray-50 flex items-center justify-center">
+                                            <img src="<%= settings.company_logo %>" alt="Company Logo" class="max-w-full max-h-full object-contain">
+                                        </div>
+                                    </div>
+                                    <% } %>
+                                    
+                                    <!-- Upload New Logo -->
+                                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-gray-400 transition-colors">
+                                        <div class="space-y-1 text-center">
+                                            <i class="fas fa-upload text-gray-400 text-3xl"></i>
+                                            <div class="flex text-sm text-gray-600">
+                                                <label for="company_logo" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+                                                    <span>Yeni logo yükle</span>
+                                                    <input id="company_logo" name="company_logo" type="file" accept="image/*" class="sr-only">
+                                                </label>
+                                                <p class="pl-1">veya sürükle bırak</p>
+                                            </div>
+                                            <p class="text-xs text-gray-500">PNG, JPG, GIF max 2MB</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Company Name -->
+                                <div>
+                                    <label for="company_name" class="block text-sm font-medium text-gray-700 mb-2">
+                                        <i class="fas fa-building mr-2"></i>Şirket Adı
+                                    </label>
+                                    <input 
+                                        id="company_name" 
+                                        name="company_name" 
+                                        type="text" 
+                                        value="<%= settings.company_name || '' %>"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                        placeholder="Şirket adınız"
+                                    >
+                                </div>
+
+                                <!-- Contact Email -->
+                                <div>
+                                    <label for="contact_email" class="block text-sm font-medium text-gray-700 mb-2">
+                                        <i class="fas fa-envelope mr-2"></i>İletişim E-postası
+                                    </label>
+                                    <input 
+                                        id="contact_email" 
+                                        name="contact_email" 
+                                        type="email" 
+                                        value="<%= settings.contact_email || '' %>"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                        placeholder="info@sirketiniz.com"
+                                    >
+                                    <p class="mt-1 text-sm text-gray-500">Teklif formlarında görünecek e-posta adresi</p>
+                                </div>
+
+                                <!-- Phone -->
+                                <div>
+                                    <label for="contact_phone" class="block text-sm font-medium text-gray-700 mb-2">
+                                        <i class="fas fa-phone mr-2"></i>İletişim Telefonu
+                                    </label>
+                                    <input 
+                                        id="contact_phone" 
+                                        name="contact_phone" 
+                                        type="text" 
+                                        value="<%= settings.contact_phone || '' %>"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                        placeholder="0555 123 45 67"
+                                    >
+                                </div>
+
+                                <!-- Website -->
+                                <div>
+                                    <label for="website" class="block text-sm font-medium text-gray-700 mb-2">
+                                        <i class="fas fa-globe mr-2"></i>Website
+                                    </label>
+                                    <input 
+                                        id="website" 
+                                        name="website" 
+                                        type="url" 
+                                        value="<%= settings.website || '' %>"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                        placeholder="https://www.sirketiniz.com"
+                                    >
+                                </div>
+                            </div>
+
+                            <!-- MODÜLLER TAB -->
+                            <div id="content-modules" class="tab-content space-y-6 hidden">
+                                <div class="bg-gray-50 rounded-lg p-6">
+                                    <h4 class="text-lg font-medium text-gray-900 mb-4">
+                                        <i class="fas fa-puzzle-piece mr-2 text-indigo-600"></i>
+                                        Kullanılabilir Modüller
+                                    </h4>
+                                    <p class="text-sm text-gray-600 mb-6">Panelinizdeki özellikler modüller halinde organize edilmiştir. İstediğiniz modülleri aktif edebilirsiniz.</p>
+                                    
+                                    <div class="space-y-4">
+                                        <% if (typeof moduleStatus !== 'undefined') { %>
+                                        <% Object.keys(moduleStatus).forEach(moduleName => { 
+                                            const module = moduleStatus[moduleName];
+                                            const isEnabled = enabledModules.includes(moduleName);
+                                            const isCore = module.core;
+                                        %>
+                                        <div class="flex items-center justify-between p-4 bg-white rounded-lg border">
+                                            <div class="flex items-center">
+                                                <input type="checkbox" 
+                                                       name="enabled_modules" 
+                                                       value="<%= moduleName %>" 
+                                                       <%= isEnabled ? 'checked' : '' %>
+                                                       <%= isCore ? 'disabled' : '' %>
+                                                       class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                                                <div class="ml-3">
+                                                    <label class="text-sm font-medium text-gray-900">
+                                                        <i class="fas fa-puzzle-piece mr-2 text-indigo-500"></i>
+                                                        <%= module.name %>
+                                                    </label>
+                                                    <p class="text-sm text-gray-500"><%= module.description || 'Modül açıklaması yok' %></p>
+                                                    <% if (module.version) { %>
+                                                    <p class="text-xs text-gray-400">v<%= module.version %></p>
+                                                    <% } %>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center space-x-2">
+                                                <% if (module.loaded) { %>
+                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                    <i class="fas fa-check-circle mr-1"></i>Yüklü
+                                                </span>
+                                                <% } else { %>
+                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                    <i class="fas fa-times-circle mr-1"></i>Pasif
+                                                </span>
+                                                <% } %>
+                                                <% if (isCore) { %>
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                    Temel Modül
+                                                </span>
+                                                <% } else { %>
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                                    Opsiyonel
+                                                </span>
+                                                <% } %>
+                                            </div>
+                                        </div>
+                                        <% }); %>
+                                        <% } else { %>
+                                        <div class="text-center py-8 text-gray-500">
+                                            <i class="fas fa-exclamation-triangle text-3xl mb-4"></i>
+                                            <p>Modül bilgileri yüklenemedi</p>
+                                        </div>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TEMA TAB -->
+                            <div id="content-theme" class="tab-content space-y-6 hidden">
+                                <div class="bg-gray-50 rounded-lg p-6">
+                                    <h4 class="text-lg font-medium text-gray-900 mb-4">
+                                        <i class="fas fa-palette mr-2 text-indigo-600"></i>
+                                        Tema Ayarları
+                                    </h4>
+                                    <p class="text-sm text-gray-600 mb-6">Public sayfalarınızın (blog, anasayfa) görünümünü özelleştirin.</p>
+                                    
+                                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                                        <h5 class="text-base font-medium text-gray-900 mb-4">🎨 Tema Seçimi</h5>
+                                        
+                                        <div class="space-y-4">
+                                            <!-- Default Tema -->
+                                            <div class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg">
+                                                <input type="radio" id="defaultTheme" name="theme" value="default" 
+                                                       class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
+                                                <div class="flex-1">
+                                                    <label for="defaultTheme" class="block text-sm font-medium text-gray-900 cursor-pointer">
+                                                        Default Tema (Tailwind CSS)
+                                                    </label>
+                                                    <p class="text-xs text-gray-500">Mevcut tasarım - Temiz ve minimal</p>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Modern Tema -->
+                                            <div class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg">
+                                                <input type="radio" id="modernTheme" name="theme" value="modern" 
+                                                       class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
+                                                <div class="flex-1">
+                                                    <label for="modernTheme" class="block text-sm font-medium text-gray-900 cursor-pointer">
+                                                        Modern Tema (Bootstrap 5)
+                                                    </label>
+                                                    <p class="text-xs text-gray-500">Bootstrap ile modern ve responsive tasarım</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mt-6">
+                                            <button type="button" id="saveThemeBtn"
+                                                    class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
+                                                <i class="fas fa-save mr-2"></i>Temayı Kaydet
+                                            </button>
+                                        </div>
+                                        
+                                        <div id="theme-message" class="mt-4 hidden">
+                                            <div class="bg-green-50 border border-green-200 rounded-md p-3">
+                                                <div class="flex">
+                                                    <i class="fas fa-check-circle text-green-400 mr-2 mt-0.5"></i>
+                                                    <p class="text-sm text-green-800">Tema başarıyla değiştirildi!</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="flex items-center justify-between pt-6 border-t">
+                                <div class="text-sm text-gray-500">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Değişiklikler kaydedildikten sonra geçerli olur
+                                </div>
+                                <button 
+                                    type="submit" 
+                                    class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                >
+                                    <i class="fas fa-save mr-2"></i>
+                                    Ayarları Kaydet
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Preview Section -->
+                <div class="mt-8 bg-white overflow-hidden shadow rounded-lg">
+                    <div class="px-6 py-8">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                            <i class="fas fa-eye mr-2 text-indigo-600"></i>
+                            Teklif Önizlemesi
+                        </h3>
+                        <p class="text-sm text-gray-600 mb-4">Tekliflerinizde bu bilgiler şu şekilde görünecek:</p>
+                        
+                        <!-- Mock proposal header -->
+                        <div class="border border-gray-200 rounded-lg p-6 bg-gray-50">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-4">
+                                    <% if (settings.company_logo) { %>
+                                    <img src="<%= settings.company_logo %>" alt="Logo" class="h-12 w-auto object-contain">
+                                    <% } else { %>
+                                    <div class="h-12 w-12 bg-gray-200 rounded flex items-center justify-center">
+                                        <i class="fas fa-image text-gray-400"></i>
+                                    </div>
+                                    <% } %>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900">
+                                            <%= settings.company_name || 'Şirket Adınız' %>
+                                        </h4>
+                                        <p class="text-sm text-gray-600">Profesyonel Web Çözümleri</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-sm text-gray-600 space-y-1">
+                                <p><i class="fas fa-envelope mr-2"></i><%= settings.contact_email || 'info@sirketiniz.com' %></p>
+                                <% if (settings.contact_phone) { %>
+                                <p><i class="fas fa-phone mr-2"></i><%= settings.contact_phone %></p>
+                                <% } %>
+                                <% if (settings.website) { %>
+                                <p><i class="fas fa-globe mr-2"></i><%= settings.website %></p>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Tab switching functionality
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab-button').forEach(tab => {
+                tab.classList.remove('border-indigo-500', 'text-indigo-600');
+                tab.classList.add('border-transparent', 'text-gray-500');
+            });
+            
+            // Show selected tab content
+            document.getElementById('content-' + tabName).classList.remove('hidden');
+            
+            // Add active class to selected tab
+            const activeTab = document.getElementById('tab-' + tabName);
+            activeTab.classList.remove('border-transparent', 'text-gray-500');
+            activeTab.classList.add('border-indigo-500', 'text-indigo-600');
+        }
+        
+        // Set default tab and add event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            showTab('general');
+            
+            // Add click event listeners to tab buttons
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const tabName = this.getAttribute('data-tab');
+                    showTab(tabName);
+                });
+            });
+        });
+
+        // File upload preview
+        document.getElementById('company_logo').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // Update preview if needed
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Tema kaydetme fonksiyonu
+        function saveTheme() {
+            const selectedTheme = document.querySelector('input[name="theme"]:checked');
+            if (!selectedTheme) {
+                alert('Lütfen bir tema seçin');
+                return;
+            }
+
+            const useModern = selectedTheme.value === 'modern';
+            
+            fetch('/dashboard/theme/toggle', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ useModern: useModern })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Başarı mesajını göster
+                    const messageDiv = document.getElementById('theme-message');
+                    messageDiv.classList.remove('hidden');
+                    
+                    // 3 saniye sonra mesajı gizle
+                    setTimeout(() => {
+                        messageDiv.classList.add('hidden');
+                    }, 3000);
+                } else {
+                    alert('Tema kaydedilirken hata oluştu');
+                }
+            })
+            .catch(error => {
+                console.error('Theme save error:', error);
+                alert('Tema kaydedilirken hata oluştu');
+            });
+        }
+
+        // Sayfa yüklendiğinde aktif temayı seç ve event listener ekle
+        document.addEventListener('DOMContentLoaded', function() {
+            // Save Theme button event listener
+            const saveThemeBtn = document.getElementById('saveThemeBtn');
+            if (saveThemeBtn) {
+                saveThemeBtn.addEventListener('click', saveTheme);
+            }
+            
+            // Aktif temayı al ve radio button'ı seç
+            fetch('/dashboard/api/current-theme')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.theme) {
+                        const themeInput = document.querySelector(`input[value="${data.theme}"]`);
+                        if (themeInput) {
+                            themeInput.checked = true;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Theme load error:', error);
+                    // Default olarak default theme'i seç
+                    document.getElementById('defaultTheme').checked = true;
+                });
+        });
+    </script>
+</body>
+</html>

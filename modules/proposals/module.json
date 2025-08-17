@@ -1,0 +1,89 @@
+{
+  "name": "proposals",
+  "displayName": "Teklif Yönetimi",
+  "description": "Teklif oluşturma, düzenleme ve müşteri geri bildirimlerini yönetme sistemi",
+  "version": "1.0.0",
+  "core": true,
+  "category": "business",
+  "routes": {
+    "/proposals": {
+      "method": "GET",
+      "handler": "routes.js",
+      "description": "Teklif listesi"
+    },
+    "/create-proposal": {
+      "method": ["GET", "POST"],
+      "handler": "routes.js", 
+      "description": "Yeni teklif oluşturma"
+    },
+    "/proposal/:id": {
+      "method": "GET",
+      "handler": "routes.js",
+      "description": "Teklif detayı"
+    },
+    "/edit-proposal/:id": {
+      "method": ["GET", "POST"],
+      "handler": "routes.js",
+      "description": "Teklif düzenleme"
+    },
+    "/toggle-proposal/:id": {
+      "method": "POST", 
+      "handler": "routes.js",
+      "description": "Teklif durumu değiştirme"
+    },
+    "/delete-proposal/:id": {
+      "method": "POST",
+      "handler": "routes.js",
+      "description": "Teklif silme"
+    }
+  },
+  "database": {
+    "tables": ["proposals", "proposal_responses"],
+    "migrations": []
+  },
+  "settings": {
+    "email_notifications": {
+      "type": "boolean",
+      "default": true,
+      "description": "Yeni teklif bildirimleri"
+    },
+    "auto_archive_days": {
+      "type": "number",
+      "default": 365,
+      "description": "Otomatik arşivleme gün sayısı"
+    },
+    "default_duration": {
+      "type": "string",
+      "default": "30 gün",
+      "description": "Varsayılan teklif geçerlilik süresi"
+    }
+  },
+  "menuItems": [
+    {
+      "title": "Teklifler",
+      "url": "/dashboard/proposals",
+      "icon": "fas fa-file-alt",
+      "order": 10,
+      "children": [
+        {
+          "title": "Tüm Teklifler",
+          "url": "/dashboard/proposals"
+        },
+        {
+          "title": "Yeni Teklif",
+          "url": "/dashboard/create-proposal"
+        }
+      ]
+    }
+  ],
+  "permissions": {
+    "view": ["admin", "manager"],
+    "create": ["admin", "manager"],
+    "edit": ["admin", "manager"],
+    "delete": ["admin"]
+  },
+  "dependencies": {
+    "core": ["auth", "database"],
+    "modules": []
+  }
+}

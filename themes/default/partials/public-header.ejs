@@ -1,0 +1,66 @@
+<!-- Public Site Navigation -->
+<nav class="bg-white shadow-lg">
+    <div class="max-w-6xl mx-auto px-4">
+        <div class="flex justify-between items-center py-4">
+            <!-- Logo -->
+            <div>
+                <a href="/" class="text-2xl font-bold text-gray-800"><%= siteName %></a>
+            </div>
+            
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex space-x-6">
+                <a href="/" class="<%= currentPage === 'home' ? 'text-indigo-600 font-medium' : 'text-gray-600 hover:text-gray-900' %>">Ana Sayfa</a>
+                <a href="/blog" class="<%= currentPage === 'blog' ? 'text-indigo-600 font-medium' : 'text-gray-600 hover:text-gray-900' %>">Blog</a>
+                <% if (typeof pages !== 'undefined') { %>
+                    <% pages.forEach(page => { %>
+                        <a href="/page/<%= page.slug %>" class="<%= currentPage === 'page-' + page.slug ? 'text-indigo-600 font-medium' : 'text-gray-600 hover:text-gray-900' %>"><%= page.title %></a>
+                    <% }); %>
+                <% } %>
+            </div>
+            
+            <!-- Mobile Hamburger -->
+            <div class="md:hidden">
+                <button id="mobileMenuBtn" type="button" class="text-gray-600 hover:text-gray-900 focus:outline-none">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden pb-4">
+            <div class="flex flex-col space-y-3">
+                <a href="/" class="<%= currentPage === 'home' ? 'text-indigo-600 font-medium' : 'text-gray-600 hover:text-gray-900' %> py-2 px-4 border-b border-gray-100">Ana Sayfa</a>
+                <a href="/blog" class="<%= currentPage === 'blog' ? 'text-indigo-600 font-medium' : 'text-gray-600 hover:text-gray-900' %> py-2 px-4 border-b border-gray-100">Blog</a>
+                <% if (typeof pages !== 'undefined') { %>
+                    <% pages.forEach(page => { %>
+                        <a href="/page/<%= page.slug %>" class="<%= currentPage === 'page-' + page.slug ? 'text-indigo-600 font-medium' : 'text-gray-600 hover:text-gray-900' %> py-2 px-4 border-b border-gray-100"><%= page.title %></a>
+                    <% }); %>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<script>
+    // Mobile menu toggle
+    document.addEventListener('DOMContentLoaded', function() {
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        
+        if (mobileMenuBtn && mobileMenu) {
+            mobileMenuBtn.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+                
+                // Toggle hamburger icon
+                const icon = this.querySelector('i');
+                if (mobileMenu.classList.contains('hidden')) {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                } else {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-times');
+                }
+            });
+        }
+    });
+</script>

@@ -1,0 +1,42 @@
+<!-- Dashboard Navigation -->
+<nav class="bg-white shadow-sm border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-semibold text-gray-900">Dashboard</h1>
+                </div>
+                <div class="ml-10 flex items-baseline space-x-4">
+                    <a href="/dashboard" class="<%= currentPage === 'dashboard' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-600 hover:text-gray-900' %> px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-home mr-2"></i>Ana Sayfa
+                    </a>
+                    <a href="/dashboard/change-password" class="<%= currentPage === 'change-password' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-600 hover:text-gray-900' %> px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-key mr-2"></i>Şifre Değiştir
+                    </a>
+                    <a href="/dashboard/cms" class="<%= currentPage === 'cms' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-600 hover:text-gray-900' %> px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-edit mr-2"></i>CMS
+                    </a>
+                    <a href="/dashboard/proposals" class="<%= currentPage === 'proposals' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-600 hover:text-gray-900' %> px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-file-alt mr-2"></i>Teklifler
+                    </a>
+                    <a href="/dashboard/settings" class="<%= currentPage === 'settings' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-600 hover:text-gray-900' %> px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-cog mr-2"></i>Ayarlar
+                    </a>
+                </div>
+            </div>
+            <div class="flex items-center">
+                <div class="flex items-center space-x-4">
+                    <a href="/" target="_blank" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-external-link-alt mr-2"></i>Ana Site
+                    </a>
+                    <span class="text-sm text-gray-700">Hoş geldin, <strong><%= user.username %></strong></span>
+                    <form method="POST" action="/dashboard/logout" class="inline">
+                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Çıkış
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>

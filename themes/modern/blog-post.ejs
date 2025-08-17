@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= post.title %> | <%= siteName %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 30vh;
+            display: flex;
+            align-items: center;
+        }
+        .post-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #333;
+        }
+        .post-content h1, .post-content h2, .post-content h3 {
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+        .post-content p {
+            margin-bottom: 1.5rem;
+        }
+        .post-meta {
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            border-left: 4px solid #667eea;
+        }
+        .btn-back {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .btn-back:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+        .post-image {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Header Include -->
+    <%- include('partials/public-header', { currentPage: 'blog', siteName: siteName, pages: pages }) %>
+
+    <!-- Hero Section -->
+    <section class="hero-section text-white">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="text-center">
+                        <h1 class="display-5 fw-bold mb-4"><%= post.title %></h1>
+                        <div class="d-flex justify-content-center align-items-center flex-wrap gap-4">
+                            <span class="badge bg-light text-dark px-3 py-2">
+                                <i class="fas fa-calendar-alt me-2"></i>
+                                <%= new Date(post.created_at).toLocaleDateString('tr-TR') %>
+                            </span>
+                            <span class="badge bg-light text-dark px-3 py-2">
+                                <i class="fas fa-clock me-2"></i>
+                                ~<%= Math.ceil(post.content.length / 1000) %> dk okuma
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Post Content -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <!-- Post Meta -->
+                    <div class="post-meta p-4 rounded-3 mb-5">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h6 class="mb-2 text-primary fw-bold">
+                                    <i class="fas fa-info-circle me-2"></i>Bu yazı hakkında
+                                </h6>
+                                <p class="mb-0 text-muted">
+                                    <%= new Date(post.created_at).toLocaleDateString('tr-TR', { 
+                                        weekday: 'long', 
+                                        year: 'numeric', 
+                                        month: 'long', 
+                                        day: 'numeric' 
+                                    }) %> tarihinde yayınlandı
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                                <a href="/blog" class="btn btn-back">
+                                    <i class="fas fa-arrow-left me-2"></i>
+                                    Blog'a Dön
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Post Image -->
+                    <% if (post.image) { %>
+                        <div class="text-center mb-5">
+                            <img src="<%= post.image %>" alt="<%= post.title %>" class="img-fluid post-image">
+                        </div>
+                    <% } %>
+
+                    <!-- Post Content -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-5">
+                            <div class="post-content">
+                                <%- post.content %>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation -->
+                    <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top">
+                        <a href="/blog" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Tüm Yazılar
+                        </a>
+                        <div class="text-center">
+                            <small class="text-muted">Bu yazıyı beğendiyseniz paylaşabilirsiniz</small>
+                        </div>
+                        <button onclick="window.print()" class="btn btn-outline-primary">
+                            <i class="fas fa-print me-2"></i>
+                            Yazdır
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Print Styles -->
+    <style media="print">
+        nav, .btn, .border-top { display: none !important; }
+        body { margin: 0; padding: 20px; background: white !important; }
+        .hero-section { background: white !important; color: black !important; }
+        .card { border: none !important; box-shadow: none !important; }
+    </style>
+</body>
+</html>

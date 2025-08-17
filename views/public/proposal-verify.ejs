@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="tr" class="h-full bg-gray-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teklif Doğrulama | <%= proposal.title %></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div class="max-w-md w-full space-y-8 p-8">
+        <div class="text-center">
+            <div class="mx-auto h-16 w-16 bg-indigo-100 rounded-full flex items-center justify-center">
+                <i class="fas fa-shield-alt text-indigo-600 text-2xl"></i>
+            </div>
+            <h2 class="mt-6 text-3xl font-extrabold text-gray-900">Teklif Doğrulama</h2>
+            <p class="mt-2 text-sm text-gray-600">
+                Teklifi görüntülemek için e-posta adresinizi doğrulayın
+            </p>
+        </div>
+
+        <div class="bg-white shadow-lg rounded-lg p-8">
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">
+                    <%= proposal.title %>
+                </h3>
+                <p class="text-sm text-gray-600">
+                    Sayın <%= proposal.customer_name %>, bu teklifi görüntülemek için e-posta doğrulaması gereklidir.
+                </p>
+            </div>
+
+            <% if (message) { %>
+            <div class="<%= error ? 'bg-red-50 border-red-200' : 'bg-blue-50 border-blue-200' %> border rounded-md p-4 mb-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas <%= error ? 'fa-exclamation-circle text-red-400' : 'fa-info-circle text-blue-400' %>"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium <%= error ? 'text-red-800' : 'text-blue-800' %>"><%= message %></p>
+                    </div>
+                </div>
+            </div>
+            <% } %>
+
+            <form method="POST" action="/proposal/<%= proposal.id %>/verify" class="space-y-6">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-envelope mr-2"></i>E-posta Adresiniz
+                    </label>
+                    <input 
+                        id="email" 
+                        name="email" 
+                        type="email" 
+                        required 
+                        class="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                        placeholder="E-posta adresinizi girin"
+                        autocomplete="email"
+                    >
+                    <p class="mt-2 text-xs text-gray-500">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Teklif gönderilirken kullanılan e-posta adresini girin
+                    </p>
+                </div>
+
+                <div>
+                    <button 
+                        type="submit" 
+                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                    >
+                        <i class="fas fa-check mr-2"></i>
+                        Doğrula ve Devam Et
+                    </button>
+                </div>
+            </form>
+
+            <div class="mt-6 pt-6 border-t border-gray-200">
+                <div class="text-center">
+                    <p class="text-xs text-gray-500">
+                        <i class="fas fa-lock mr-1"></i>
+                        Bu doğrulama işlemi güvenlik amacıyla yapılmaktadır
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <a href="/" class="text-indigo-600 hover:text-indigo-500 text-sm font-medium">
+                <i class="fas fa-arrow-left mr-2"></i>Ana sayfaya dön
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Auto-focus email input
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('email').focus();
+        });
+
+        // Form validation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const email = document.getElementById('email').value;
+            if (!email || !email.includes('@')) {
+                e.preventDefault();
+                alert('Lütfen geçerli bir e-posta adresi girin.');
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= post.title %> | <%= siteName %></title>
+    <% if (post.meta_title) { %><meta name="title" content="<%= post.meta_title %>"><% } %>
+    <% if (post.meta_description) { %><meta name="description" content="<%= post.meta_description %>"><% } %>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <%- include('partials/public-header', { currentPage: 'blog-post', siteName: siteName, pages: pages }) %>
+
+    <!-- Breadcrumb -->
+    <div class="bg-gray-100 py-4">
+        <div class="max-w-4xl mx-auto px-4">
+            <nav class="text-sm">
+                <a href="/" class="text-blue-600 hover:text-blue-800">Ana Sayfa</a>
+                <span class="mx-2 text-gray-500">/</span>
+                <a href="/blog" class="text-blue-600 hover:text-blue-800">Blog</a>
+                <span class="mx-2 text-gray-500">/</span>
+                <span class="text-gray-600"><%= post.title %></span>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Blog Post -->
+    <article class="max-w-4xl mx-auto px-4 py-12">
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <!-- Post Header -->
+            <div class="p-8 border-b border-gray-200">
+                <div class="flex items-center text-sm text-gray-500 mb-4">
+                    <i class="fas fa-calendar mr-2"></i>
+                    <span><%= new Date(post.created_at).toLocaleDateString('tr-TR') %></span>
+                    <% if (post.published_at && post.published_at !== post.created_at) { %>
+                        <span class="mx-2">•</span>
+                        <i class="fas fa-edit mr-2"></i>
+                        <span>Güncellendi: <%= new Date(post.published_at).toLocaleDateString('tr-TR') %></span>
+                    <% } %>
+                    <% if (post.tags) { %>
+                        <span class="mx-2">•</span>
+                        <i class="fas fa-tags mr-2"></i>
+                        <span><%= post.tags %></span>
+                    <% } %>
+                </div>
+                
+                <h1 class="text-4xl font-bold text-gray-800 mb-6"><%= post.title %></h1>
+                
+                <% if (post.excerpt) { %>
+                <p class="text-xl text-gray-600 leading-relaxed"><%= post.excerpt %></p>
+                <% } %>
+            </div>
+
+            <!-- Post Content -->
+            <div class="p-8">
+                <div class="prose prose-lg max-w-none">
+                    <%- post.content.replace(/\n/g, '<br>') %>
+                </div>
+            </div>
+
+            <!-- Post Footer -->
+            <div class="p-8 border-t border-gray-200 bg-gray-50">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Bu yazıyı beğendiniz mi?</h3>
+                        <p class="text-gray-600">Daha fazla içerik için blog sayfamızı takip edin.</p>
+                    </div>
+                    <a href="/blog" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Blog'a Dön
+                    </a>
+                </div>
+            </div>
+        </div>
+    </article>
+
+    <!-- Related Posts (Placeholder) -->
+    <div class="max-w-4xl mx-auto px-4 pb-12">
+        <div class="bg-white rounded-lg shadow-lg p-8">
+            <h3 class="text-2xl font-bold text-gray-800 mb-6">İlgili Yazılar</h3>
+            <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-newspaper text-4xl mb-4"></i>
+                <p>Yakında daha fazla içerik...</p>
+                <a href="/blog" class="inline-block mt-4 text-blue-600 hover:text-blue-800 font-semibold">
+                    Tüm Blog Yazılarını Görüntüle →
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center">
+                <h3 class="text-xl font-bold mb-4"><%= siteName %></h3>
+                <p class="text-gray-400 mb-6">Blog yazılarımızla sizinle bilgi paylaşıyoruz.</p>
+                <div class="flex justify-center space-x-6">
+                    <a href="/" class="text-blue-400 hover:text-blue-300 transition-colors">Ana Sayfa</a>
+                    <a href="/blog" class="text-blue-400 hover:text-blue-300 transition-colors">Blog</a>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; <%= new Date().getFullYear() %> <%= siteName %>. Tüm hakları saklıdır.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

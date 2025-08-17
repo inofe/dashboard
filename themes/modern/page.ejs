@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= page.title %> | <%= siteName %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 40vh;
+            display: flex;
+            align-items: center;
+        }
+        .page-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #333;
+        }
+        .page-content h1, .page-content h2, .page-content h3 {
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+        .page-content p {
+            margin-bottom: 1.5rem;
+        }
+        .page-content blockquote {
+            border-left: 4px solid #667eea;
+            background: #f8f9fa;
+            padding: 1rem 1.5rem;
+            margin: 2rem 0;
+            font-style: italic;
+        }
+        .page-meta {
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            border-left: 4px solid #667eea;
+        }
+        .btn-back {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .btn-back:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+        .page-image {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .page-navigation {
+            background: linear-gradient(45deg, #f8f9fa, #ffffff);
+            border-radius: 15px;
+            border: 1px solid #e9ecef;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Header Include -->
+    <%- include('partials/public-header', { currentPage: 'page-' + page.slug, siteName: siteName, pages: pages }) %>
+
+    <!-- Hero Section -->
+    <section class="hero-section text-white">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="text-center">
+                        <h1 class="display-5 fw-bold mb-4"><%= page.title %></h1>
+                        <div class="d-flex justify-content-center align-items-center flex-wrap gap-4">
+                            <span class="badge bg-light text-dark px-3 py-2">
+                                <i class="fas fa-file-alt me-2"></i>
+                                Sayfa
+                            </span>
+                            <% if (page.updated_at) { %>
+                                <span class="badge bg-light text-dark px-3 py-2">
+                                    <i class="fas fa-calendar-alt me-2"></i>
+                                    Son güncelleme: <%= new Date(page.updated_at).toLocaleDateString('tr-TR') %>
+                                </span>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Page Content -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <!-- Page Meta -->
+                    <div class="page-meta p-4 rounded-3 mb-5">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h6 class="mb-2 text-primary fw-bold">
+                                    <i class="fas fa-info-circle me-2"></i>Bu sayfa hakkında
+                                </h6>
+                                <p class="mb-0 text-muted">
+                                    <% if (page.updated_at) { %>
+                                        Son güncelleme: <%= new Date(page.updated_at).toLocaleDateString('tr-TR', { 
+                                            weekday: 'long', 
+                                            year: 'numeric', 
+                                            month: 'long', 
+                                            day: 'numeric' 
+                                        }) %>
+                                    <% } else if (page.created_at) { %>
+                                        Oluşturulma: <%= new Date(page.created_at).toLocaleDateString('tr-TR', { 
+                                            weekday: 'long', 
+                                            year: 'numeric', 
+                                            month: 'long', 
+                                            day: 'numeric' 
+                                        }) %>
+                                    <% } %>
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                                <a href="/" class="btn btn-back">
+                                    <i class="fas fa-home me-2"></i>
+                                    Anasayfa
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Page Image -->
+                    <% if (page.image) { %>
+                        <div class="text-center mb-5">
+                            <img src="<%= page.image %>" alt="<%= page.title %>" class="img-fluid page-image">
+                        </div>
+                    <% } %>
+
+                    <!-- Page Content -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-5">
+                            <div class="page-content">
+                                <%- page.content %>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Page Navigation -->
+                    <% if (pages && pages.length > 1) { %>
+                        <div class="page-navigation p-4 mt-5">
+                            <h6 class="fw-bold mb-3">
+                                <i class="fas fa-sitemap me-2"></i>
+                                Diğer Sayfalar
+                            </h6>
+                            <div class="row g-3">
+                                <% pages.filter(p => p.slug !== page.slug).slice(0, 4).forEach(otherPage => { %>
+                                    <div class="col-md-6">
+                                        <a href="/page/<%= otherPage.slug %>" class="btn btn-outline-primary w-100 text-start">
+                                            <i class="fas fa-file-alt me-2"></i>
+                                            <%= otherPage.title %>
+                                        </a>
+                                    </div>
+                                <% }); %>
+                            </div>
+                        </div>
+                    <% } %>
+
+                    <!-- Bottom Navigation -->
+                    <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top">
+                        <a href="/" class="btn btn-outline-secondary">
+                            <i class="fas fa-home me-2"></i>
+                            Anasayfa
+                        </a>
+                        <div class="text-center">
+                            <small class="text-muted">Bu sayfayı beğendiyseniz paylaşabilirsiniz</small>
+                        </div>
+                        <button onclick="window.print()" class="btn btn-outline-primary">
+                            <i class="fas fa-print me-2"></i>
+                            Yazdır
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Print Styles -->
+    <style media="print">
+        nav, .btn, .border-top, .page-navigation { display: none !important; }
+        body { margin: 0; padding: 20px; background: white !important; }
+        .hero-section { background: white !important; color: black !important; }
+        .card { border: none !important; box-shadow: none !important; }
+    </style>
+</body>
+</html>

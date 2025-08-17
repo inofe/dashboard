@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="tr" class="h-full bg-gray-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teklifler | Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="h-full">
+    <div class="min-h-full">
+        <!-- Navigation -->
+        <nav class="bg-white shadow-sm border-b">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <h1 class="text-xl font-semibold text-gray-900">Dashboard</h1>
+                        </div>
+                        <div class="ml-10 flex items-baseline space-x-4">
+                            <a href="/dashboard" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-home mr-2"></i>Ana Sayfa
+                            </a>
+                            <a href="/dashboard/change-password" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-key mr-2"></i>Şifre Değiştir
+                            </a>
+                            <a href="/dashboard/proposals" class="bg-indigo-100 text-indigo-700 px-3 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-file-alt mr-2"></i>Teklifler
+                            </a>
+                            <a href="/dashboard/settings" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                                <i class="fas fa-cog mr-2"></i>Ayarlar
+                            </a>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="flex items-center space-x-4">
+                            <span class="text-sm text-gray-700">Hoş geldin, <strong><%= user.username %></strong></span>
+                            <form method="POST" action="/dashboard/logout" class="inline">
+                                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                                    <i class="fas fa-sign-out-alt mr-2"></i>Çıkış
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <div class="px-4 py-6 sm:px-0">
+                <!-- Header with Create Button -->
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900">
+                        <i class="fas fa-file-alt mr-2 text-indigo-600"></i>
+                        Teklifler
+                    </h2>
+                    <a href="/dashboard/create-proposal" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
+                        <i class="fas fa-plus mr-2"></i>Yeni Teklif
+                    </a>
+                </div>
+
+                <!-- Status Messages -->
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const urlParams = new URLSearchParams(window.location.search);
+                        let message = '';
+                        let isSuccess = false;
+
+                        if (urlParams.get('deleted') === '1') {
+                            message = 'Teklif başarıyla silindi';
+                            isSuccess = true;
+                        } else if (urlParams.get('error') === 'not_found') {
+                            message = 'Teklif bulunamadı';
+                        } else if (urlParams.get('error') === 'delete_failed') {
+                            message = 'Teklif silinirken hata oluştu';
+                        }
+
+                        if (message) {
+                            showMessage(message, isSuccess);
+                            // Clean URL
+                            window.history.replaceState({}, document.title, window.location.pathname);
+                        }
+                    });
+
+                    function showMessage(message, isSuccess) {
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = `${isSuccess ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'} border rounded-md p-4 mb-6`;
+                        messageDiv.innerHTML = `
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas ${isSuccess ? 'fa-check-circle text-green-400' : 'fa-exclamation-circle text-red-400'}"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm font-medium ${isSuccess ? 'text-green-800' : 'text-red-800'}">${message}</p>
+                                </div>
+                            </div>
+                        `;
+                        
+                        const container = document.querySelector('.px-4.py-6');
+                        const proposalsDiv = document.querySelector('.bg-white.shadow');
+                        container.insertBefore(messageDiv, proposalsDiv);
+
+                        // Auto remove after 5 seconds
+                        setTimeout(() => {
+                            messageDiv.remove();
+                        }, 5000);
+                    }
+                </script>
+
+                <!-- Proposals List -->
+                <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                    <% if (proposals && proposals.length > 0) { %>
+                    <ul class="divide-y divide-gray-200">
+                        <% proposals.forEach(function(proposal) { %>
+                        <li class="px-6 py-4 hover:bg-gray-50">
+                            <div class="flex items-center justify-between">
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center space-x-3">
+                                        <h3 class="text-lg font-medium text-gray-900 truncate">
+                                            <%= proposal.title %>
+                                        </h3>
+                                        <div class="flex items-center space-x-2">
+                                            <!-- Status Badge -->
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= proposal.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %>">
+                                                <i class="fas <%= proposal.is_active ? 'fa-check-circle' : 'fa-times-circle' %> mr-1"></i>
+                                                <%= proposal.is_active ? 'Aktif' : 'Pasif' %>
+                                            </span>
+                                            
+                                            <!-- Last Response Badge -->
+                                            <% if (proposal.last_response_type) { %>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                                <%= proposal.last_response_type === 'accepted' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800' %>">
+                                                <i class="fas 
+                                                    <%= proposal.last_response_type === 'accepted' ? 'fa-thumbs-up' : 'fa-edit' %> mr-1"></i>
+                                                <%= proposal.last_response_type === 'accepted' ? 'Kabul Edildi' : 'Revizyon İstendi' %>
+                                            </span>
+                                            <% } else { %>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                                <i class="fas fa-clock mr-1"></i>
+                                                Yanıt Bekleniyor
+                                            </span>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2 flex items-center text-sm text-gray-500 space-x-6">
+                                        <span>
+                                            <i class="fas fa-user mr-1"></i>
+                                            <%= proposal.customer_name %>
+                                        </span>
+                                        <span>
+                                            <i class="fas fa-envelope mr-1"></i>
+                                            <%= proposal.customer_email %>
+                                        </span>
+                                        <% if (proposal.price) { %>
+                                        <span>
+                                            <i class="fas fa-lira-sign mr-1"></i>
+                                            <%= parseFloat(proposal.price).toLocaleString('tr-TR') %>
+                                        </span>
+                                        <% } %>
+                                        <span>
+                                            <i class="fas fa-calendar mr-1"></i>
+                                            <%= new Date(proposal.created_at).toLocaleDateString('tr-TR') %>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <!-- Toggle Active/Inactive -->
+                                    <form method="POST" action="/dashboard/toggle-proposal/<%= proposal.id %>" class="inline">
+                                        <button 
+                                            type="submit" 
+                                            class="group relative <%= proposal.is_active ? 'bg-red-100 hover:bg-red-200 text-red-700' : 'bg-green-100 hover:bg-green-200 text-green-700' %> p-2 rounded-md text-sm font-medium transition-colors"
+                                            title="<%= proposal.is_active ? 'Teklifi pasif yap (müşteri erişemez)' : 'Teklifi aktif yap (müşteri erişebilir)' %>"
+                                        >
+                                            <i class="fas <%= proposal.is_active ? 'fa-eye-slash' : 'fa-eye' %>"></i>
+                                            <!-- Tooltip -->
+                                            <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                                                <%= proposal.is_active ? 'Pasif Yap' : 'Aktif Yap' %>
+                                            </div>
+                                        </button>
+                                    </form>
+                                    
+                                    <!-- View Details Button -->
+                                    <a 
+                                        href="/dashboard/proposal/<%= proposal.id %>" 
+                                        class="group relative bg-indigo-100 hover:bg-indigo-200 text-indigo-700 p-2 rounded-md text-sm font-medium transition-colors"
+                                        title="Teklif detaylarını görüntüle"
+                                    >
+                                        <i class="fas fa-info-circle"></i>
+                                        <!-- Tooltip -->
+                                        <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                                            Detayları Gör
+                                        </div>
+                                    </a>
+                                    
+                                    <!-- Copy Link Button -->
+                                    <button 
+                                        onclick="copyProposalLink(<%= proposal.id %>)" 
+                                        class="group relative bg-purple-100 hover:bg-purple-200 text-purple-700 p-2 rounded-md text-sm font-medium transition-colors"
+                                        title="Müşteri linkini kopyala"
+                                    >
+                                        <i class="fas fa-link"></i>
+                                        <!-- Tooltip -->
+                                        <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                                            Linki Kopyala
+                                        </div>
+                                    </button>
+
+                                    <!-- Preview Button -->
+                                    <a 
+                                        href="/proposal/<%= proposal.id %>" 
+                                        target="_blank"
+                                        class="group relative bg-orange-100 hover:bg-orange-200 text-orange-700 p-2 rounded-md text-sm font-medium transition-colors"
+                                        title="Müşteri görünümünü önizle"
+                                    >
+                                        <i class="fas fa-external-link-alt"></i>
+                                        <!-- Tooltip -->
+                                        <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                                            Önizle
+                                        </div>
+                                    </a>
+
+                                    <!-- Edit Button -->
+                                    <a 
+                                        href="/dashboard/edit-proposal/<%= proposal.id %>" 
+                                        class="group relative bg-yellow-100 hover:bg-yellow-200 text-yellow-700 p-2 rounded-md text-sm font-medium transition-colors"
+                                        title="Teklifi düzenle"
+                                    >
+                                        <i class="fas fa-edit"></i>
+                                        <!-- Tooltip -->
+                                        <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                                            Düzenle
+                                        </div>
+                                    </a>
+
+                                    <!-- Delete Button -->
+                                    <button 
+                                        data-proposal-id="<%= proposal.id %>" 
+                                        data-proposal-title="<%= proposal.title %>"
+                                        class="delete-proposal-btn group relative bg-red-100 hover:bg-red-200 text-red-700 p-2 rounded-md text-sm font-medium transition-colors"
+                                        title="Teklifi sil"
+                                    >
+                                        <i class="fas fa-trash"></i>
+                                        <!-- Tooltip -->
+                                        <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                                            Sil
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+                        </li>
+                        <% }); %>
+                    </ul>
+                    <% } else { %>
+                    <div class="text-center py-12">
+                        <i class="fas fa-file-alt text-gray-400 text-4xl mb-4"></i>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">Henüz teklif bulunmuyor</h3>
+                        <p class="text-gray-500 mb-4">İlk teklifinizi oluşturun ve müşterilerinizle paylaşın.</p>
+                        <a href="/dashboard/create-proposal" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
+                            <i class="fas fa-plus mr-2"></i>İlk Teklifi Oluştur
+                        </a>
+                    </div>
+                    <% } %>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function copyProposalLink(proposalId) {
+            const link = window.location.origin + '/proposal/' + proposalId;
+            navigator.clipboard.writeText(link).then(function() {
+                // Başarı mesajı göster
+                const button = event.target.closest('button');
+                const originalContent = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check"></i>';
+                button.classList.add('bg-green-100', 'text-green-700');
+                button.classList.remove('bg-purple-100', 'text-purple-700');
+                
+                setTimeout(() => {
+                    button.innerHTML = originalContent;
+                    button.classList.remove('bg-green-100', 'text-green-700');
+                    button.classList.add('bg-purple-100', 'text-purple-700');
+                }, 2000);
+            });
+        }
+
+        // Delete proposal event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.delete-proposal-btn').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const proposalId = this.getAttribute('data-proposal-id');
+                    const proposalTitle = this.getAttribute('data-proposal-title');
+                    
+                    if (confirm(`"${proposalTitle}" teklifini silmek istediğinizden emin misiniz?\n\nBu işlem geri alınamaz ve tüm müşteri yanıtları da silinecektir.`)) {
+                        // Create and submit a form for DELETE request
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = `/dashboard/delete-proposal/${proposalId}`;
+                        
+                        // Add CSRF protection if needed
+                        const hiddenField = document.createElement('input');
+                        hiddenField.type = 'hidden';
+                        hiddenField.name = '_method';
+                        hiddenField.value = 'DELETE';
+                        form.appendChild(hiddenField);
+                        
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

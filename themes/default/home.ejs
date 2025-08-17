@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= siteName %></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <%- include('partials/public-header', { currentPage: 'home', siteName: siteName, pages: pages }) %>
+
+    <!-- Hero Section -->
+    <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            <h1 class="text-5xl font-bold mb-6"><%= siteName %></h1>
+            <p class="text-xl mb-8"><%= siteDescription %></p>
+            <a href="/blog" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                Blog'u Keşfet
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Blog Posts -->
+    <div class="max-w-6xl mx-auto px-4 py-16">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Son Blog Yazıları</h2>
+            <p class="text-gray-600">En güncel içeriklerimizi keşfedin</p>
+        </div>
+
+        <% if (recentPosts.length > 0) { %>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <% recentPosts.forEach(post => { %>
+            <article class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">
+                        <a href="/blog/<%= post.slug %>" class="hover:text-blue-600 transition-colors">
+                            <%= post.title %>
+                        </a>
+                    </h3>
+                    <% if (post.excerpt) { %>
+                    <p class="text-gray-600 mb-4"><%= post.excerpt.substring(0, 150) %>...</p>
+                    <% } %>
+                    <div class="flex items-center justify-between text-sm text-gray-500">
+                        <span><%= new Date(post.created_at).toLocaleDateString('tr-TR') %></span>
+                        <a href="/blog/<%= post.slug %>" class="text-blue-600 hover:text-blue-800 font-medium">
+                            Devamını Oku →
+                        </a>
+                    </div>
+                </div>
+            </article>
+            <% }); %>
+        </div>
+
+        <div class="text-center mt-12">
+            <a href="/blog" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                Tüm Blog Yazıları
+            </a>
+        </div>
+        <% } else { %>
+        <div class="text-center py-12">
+            <i class="fas fa-blog text-gray-400 text-6xl mb-4"></i>
+            <h3 class="text-xl text-gray-600">Henüz blog yazısı yok</h3>
+        </div>
+        <% } %>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4"><%= siteName %></h3>
+                    <p class="text-gray-400"><%= siteDescription %></p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Sayfalar</h3>
+                    <ul class="space-y-2">
+                        <li><a href="/" class="text-gray-400 hover:text-white transition-colors">Ana Sayfa</a></li>
+                        <li><a href="/blog" class="text-gray-400 hover:text-white transition-colors">Blog</a></li>
+                        <% pages.forEach(page => { %>
+                            <li><a href="/page/<%= page.slug %>" class="text-gray-400 hover:text-white transition-colors"><%= page.title %></a></li>
+                        <% }); %>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">İletişim</h3>
+                    <p class="text-gray-400">Bu site ile ilgili sorularınız için bize ulaşın.</p>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; <%= new Date().getFullYear() %> <%= siteName %>. Tüm hakları saklıdır.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

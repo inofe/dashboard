@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <title>Sayfa Bulunamadı - BizeBiApp</title>
+  <%- include('partials/head') %>
+</head>
+<body class="body-bg">
+
+  <!-- Preloader -->
+  <%- include('partials/preloader') %>
+
+  <!-- Cursor -->
+  <div class="mouse-follower">
+    <span class="cursor-outline"></span>
+    <span class="cursor-dot"></span>
+  </div>
+
+  <!-- Header -->
+  <%- include('partials/header') %>
+
+  <!-- 404 Section -->
+  <section class="d-flex align-items-center justify-content-center text-center" style="min-height: 80vh;">
+    <div class="container">
+      <h1 style="font-size: 5rem; font-weight: 800;">404</h1>
+      <h2 class="mb-3">Sayfa Bulunamadı</h2>
+      <p class="mb-4">Aradığınız sayfa mevcut değil ya da taşınmış olabilir.</p>
+      <a href="/" class="common-btn p1-bg text-white px-4 py-2 rounded">Anasayfaya Dön</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <%- include('partials/footer') %>
+
+  <!-- JS -->
+  <script src="/assets/js/jquery-3.7.1.min.js"></script>
+  <script src="/assets/js/bootstrap.bundle.min.js"></script>
+  <script src="/assets/js/main.js"></script>
+</body>
+</html>

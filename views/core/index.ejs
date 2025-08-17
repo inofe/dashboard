@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="tr" class="h-full bg-gray-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | BizebiApp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="h-full">
+    <div class="min-h-full">
+        <%- include('../partials/dashboard-header', { currentPage: 'dashboard', user: user }) %>
+
+        <!-- Main content -->
+        <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <div class="px-4 py-6 sm:px-0">
+                <!-- Welcome Section -->
+                <div class="bg-white overflow-hidden shadow rounded-lg mb-8">
+                    <div class="px-4 py-5 sm:p-6">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-tachometer-alt text-indigo-600 text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                                    Dashboard'a Hoş Geldiniz
+                                </h3>
+                                <p class="mt-1 text-sm text-gray-500">
+                                    BizebiApp yönetim paneline başarıyla giriş yaptınız.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="mb-8">
+                    <h2 class="text-lg font-medium text-gray-900 mb-4">Hızlı Erişim</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- CMS Card -->
+                        <a href="/dashboard/cms" class="block">
+                            <div class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow cursor-pointer">
+                                <div class="p-6">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0">
+                                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                                <i class="fas fa-edit text-green-600 text-xl"></i>
+                                            </div>
+                                        </div>
+                                        <div class="ml-4">
+                                            <h3 class="text-lg font-medium text-gray-900">İçerik Yönetimi</h3>
+                                            <p class="text-sm text-gray-500">Sayfalar ve blog yazılarını yönet</p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4">
+                                        <div class="flex justify-between text-sm">
+                                            <span class="text-gray-600">CMS</span>
+                                            <span class="text-green-600 font-medium">
+                                                <i class="fas fa-arrow-right"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+
+                        <!-- Proposals Card -->
+                        <a href="/dashboard/proposals" class="block">
+                            <div class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow cursor-pointer">
+                                <div class="p-6">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0">
+                                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                                <i class="fas fa-file-alt text-blue-600 text-xl"></i>
+                                            </div>
+                                        </div>
+                                        <div class="ml-4">
+                                            <h3 class="text-lg font-medium text-gray-900">Teklifler</h3>
+                                            <p class="text-sm text-gray-500">Proje tekliflerini yönet</p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4">
+                                        <div class="flex justify-between text-sm">
+                                            <span class="text-gray-600">Proposals</span>
+                                            <span class="text-blue-600 font-medium">
+                                                <i class="fas fa-arrow-right"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+
+                        <!-- Public Site Card -->
+                        <a href="/" target="_blank" class="block">
+                            <div class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow cursor-pointer">
+                                <div class="p-6">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0">
+                                            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                                <i class="fas fa-globe text-purple-600 text-xl"></i>
+                                            </div>
+                                        </div>
+                                        <div class="ml-4">
+                                            <h3 class="text-lg font-medium text-gray-900">Ana Site</h3>
+                                            <p class="text-sm text-gray-500">Sitenizi görüntüle</p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4">
+                                        <div class="flex justify-between text-sm">
+                                            <span class="text-gray-600">Public</span>
+                                            <span class="text-purple-600 font-medium">
+                                                <i class="fas fa-external-link-alt"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
