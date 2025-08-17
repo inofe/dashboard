@@ -66,6 +66,7 @@ dashboard/
 
 ## 🚀 Kurulum ve Çalıştırma
 
+### Native Installation
 ```bash
 # Bağımlılıkları yükle
 npm install
@@ -74,6 +75,18 @@ npm install
 npm start
 # veya
 node server.js
+```
+
+### Docker Installation
+```bash
+# .env dosyasını oluştur
+cp .env.example .env
+
+# Docker ile başlat
+docker-compose up --build
+
+# Farklı portta çalıştır
+PORT=8080 EXTERNAL_PORT=8080 docker-compose up -d
 ```
 
 **Erişim adresleri:**
@@ -129,6 +142,16 @@ Yeni tema oluşturmak için:
 - **Uploads**: Local filesystem (geliştirme), S3/CDN (production)
 - **Logging**: File-based system
 - **Caching**: In-memory cache sistem
+- **Containerization**: Docker + docker-compose
+- **Port Management**: Dynamic ENV-based port configuration
+
+## 🐳 Docker Özellikler
+
+- **Dinamik Port**: PORT ve EXTERNAL_PORT ENV variables
+- **Volume Persistence**: data, uploads, logs klasörleri
+- **Health Checks**: Container sağlık durumu izleme
+- **Auto Restart**: Container otomatik yeniden başlatma
+- **Multi-Environment**: development/production desteği
 
 ## 🌟 Gelecek Özellikler
 

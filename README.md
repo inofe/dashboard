@@ -68,29 +68,26 @@ node server.js
 ```env
 # Port Configuration
 PORT=3000
-
-# Email Configuration
-EMAIL_PASS=your_gmail_app_password_here
+EXTERNAL_PORT=3000
+HOST=0.0.0.0
 
 # Security Configuration
-ALLOWED_HOSTS=localhost:3000
 SESSION_SECRET=your_secure_random_secret_here
 
-# SMTP Configuration
-SMTP_USER=your_email@example.com
-SMTP_FROM_EMAIL=your_email@example.com
-SMTP_TO_EMAILS=recipient1@example.com,recipient2@example.com
-DEFAULT_CONTACT_EMAIL=contact@example.com
-
 # Dashboard Configuration
-DEFAULT_ADMIN_PASSWORD=change_this_password
+DEFAULT_ADMIN_PASSWORD=admin123
+ENABLE_COMPRESSION=false
+ENABLE_RATE_LIMITING=false
 FILE_UPLOAD_LIMIT=2097152
-DATA_DIR=dashboard/data
+DATA_DIR=data
 BCRYPT_SALT_ROUNDS=10
 
 # Rate Limiting
 RATE_LIMIT_WINDOW=20000
 RATE_LIMIT_MAX=1
+
+# Node Environment
+NODE_ENV=development
 ```
 
 ### 4. Kurulum
@@ -131,11 +128,22 @@ await setupDashboard(app); // ✅ Tek satır entegrasyon!
 # .env dosyasını oluşturun (.env.example'dan kopyalayın)
 cp .env.example .env
 
-# Gerekli değişkenleri düzenleyin
+# Port ayarlarını düzenleyin (isteğe bağlı)
 nano .env
 
 # Docker ile başlatın
 docker-compose up --build
+```
+
+**Farklı Port'ta Çalıştırma:**
+```bash
+# 8080 portunda çalıştır
+PORT=8080 EXTERNAL_PORT=8080 docker-compose up -d
+
+# Environment file ile
+echo "PORT=8080" >> .env
+echo "EXTERNAL_PORT=8080" >> .env
+docker-compose up -d
 ```
 
 **Prodüksiyon için:**
@@ -144,7 +152,7 @@ docker-compose up --build
 docker-compose up -d --build
 
 # Logları görüntüle
-docker-compose logs -f dashboard
+docker-compose logs -f admin-panel
 ```
 
 **Docker Özellikleri:**
@@ -152,6 +160,7 @@ docker-compose logs -f dashboard
 - ✅ **Data kalıcılığı** - Volume mapping ile veriler korunur
 - ✅ **Health check** - Container sağlık durumu kontrolü
 - ✅ **Auto restart** - Sistem yeniden başlatıldığında otomatik çalışır
+- ✅ **Dinamik port** - ENV ile port değiştirilebilir
 
 ### 5. İlk Kurulumu Yapın
 ```bash
@@ -307,11 +316,10 @@ dashboard/
 
 Dashboard modülü aşağıdaki ENV değişkenlerini destekler:
 
-### Email Yapılandırması
-- `SMTP_USER` - Gmail kullanıcı adresi
-- `SMTP_FROM_EMAIL` - Gönderici email adresi  
-- `SMTP_TO_EMAILS` - Alıcı email adresleri (virgülle ayrılmış)
-- `DEFAULT_CONTACT_EMAIL` - Varsayılan iletişim email'i
+### Port Yapılandırması
+- `PORT` - Container içi port (varsayılan: 3000)
+- `EXTERNAL_PORT` - Dış port mapping (varsayılan: 3000)
+- `HOST` - Bind adresi (varsayılan: 0.0.0.0)
 
 ### Güvenlik
 - `SESSION_SECRET` - Session güvenlik anahtarı
@@ -323,8 +331,13 @@ Dashboard modülü aşağıdaki ENV değişkenlerini destekler:
 - `DATA_DIR` - Database klasörü yolu
 
 ### Rate Limiting
+- `ENABLE_RATE_LIMITING` - Rate limiting aktif/pasif
 - `RATE_LIMIT_WINDOW` - Rate limit penceresi (ms)
 - `RATE_LIMIT_MAX` - Maximum istek sayısı
+
+### Performans
+- `ENABLE_COMPRESSION` - Gzip sıkıştırma aktif/pasif
+- `NODE_ENV` - Çalışma ortamı (development/production)
 
 ## 🐳 Docker Deployment
 
@@ -333,21 +346,26 @@ Dashboard modülü aşağıdaki ENV değişkenlerini destekler:
 version: '3.8'
 
 services:
-  dashboard:
+  admin-panel:
     build: .
-    container_name: admin-dashboard
+    container_name: admin-panel
     ports:
-      - "3000:3000"
-    volumes:
-      - ./data:/app/data           # Database kalıcılığı
-      - ./uploads:/app/uploads     # Dosya yükleme kalıcılığı
-      - ./logs:/app/logs           # Log kalıcılığı
+      - "${EXTERNAL_PORT:-3000}:${PORT:-3000}"
     environment:
       - NODE_ENV=production
-      - PORT=3000
-    env_file:
-      - .env
+      - HOST=0.0.0.0
+      - PORT=${PORT:-3000}
+    volumes:
+      - ./uploads:/app/uploads     # Dosya yükleme kalıcılığı
+      - ./logs:/app/logs           # Log kalıcılığı
+      - ./data:/app/data           # Database kalıcılığı
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/dashboard/login', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 ```
 
 ### Docker Komutları
@@ -356,13 +374,16 @@ services:
 docker-compose up -d
 
 # Logları takip et
-docker-compose logs -f
+docker-compose logs -f admin-panel
 
 # Container'a bağlan
-docker-compose exec dashboard sh
+docker-compose exec admin-panel sh
 
 # Servisi durdur
 docker-compose down
+
+# Farklı portta çalıştır
+PORT=8080 EXTERNAL_PORT=8080 docker-compose up -d
 
 # Verileri sil (dikkat!)
 docker-compose down -v

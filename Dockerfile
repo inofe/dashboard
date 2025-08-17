@@ -21,7 +21,7 @@ ENV HOST=0.0.0.0
 ENV PORT=3000
 
 # Expose port (will be overridden by ENV)
-EXPOSE $PORT
+EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
