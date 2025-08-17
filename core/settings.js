@@ -130,8 +130,8 @@ const getAllSettings = () => {
 
 // Modül sistemi için özel fonksiyonlar
 const getEnabledModules = async () => {
-    const modules = await getSetting('modules', 'enabled_modules', ['proposals']);
-    return Array.isArray(modules) ? modules : ['proposals'];
+    const modules = await getSetting('modules', 'enabled_modules', ['proposals', 'cms']);
+    return Array.isArray(modules) ? modules : ['proposals', 'cms'];
 };
 
 const enableModule = async (moduleName) => {

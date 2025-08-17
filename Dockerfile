@@ -11,15 +11,17 @@ COPY package*.json ./
 RUN npm ci --only=production && npm cache clean --force
 
 # Copy application code
-COPY --chown=dashboard:nodejs . .
+COPY . .
 
-# Create necessary directories with proper permissions
-RUN mkdir -p uploads/cms logs data && \
-    chown -R dashboard:nodejs uploads logs data
+# Create necessary directories
+RUN mkdir -p uploads/cms logs data
 
+# Set environment for Docker
+ENV HOST=0.0.0.0
+ENV PORT=3000
 
-# Expose port
-EXPOSE ${PORT}
+# Expose port (will be overridden by ENV)
+EXPOSE $PORT
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
