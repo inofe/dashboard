@@ -1,6 +1,9 @@
 # Use Node.js LTS Alpine image for smaller size
 FROM node:18-alpine
 
+# Production mode for smaller installation
+ENV NODE_ENV=production
+
 # Set working directory
 WORKDIR /app
 
@@ -8,26 +11,13 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production && npm cache clean --force
+RUN npm ci --only=production || npm install --only=production
 
 # Copy application code
 COPY . .
 
-# Create necessary directories
-RUN mkdir -p uploads/cms logs data
-
-# Set environment for Docker
-ENV HOST=0.0.0.0
-ENV PORT=3000
-
-# Expose port (will be overridden by ENV)
-EXPOSE 3000
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/dashboard/login', (res) => { \
-    process.exit(res.statusCode === 200 ? 0 : 1) \
-  }).on('error', () => process.exit(1))"
+# Expose port (dynamic from ENV)
+EXPOSE ${PORT}
 
 # Start the application
-CMD ["npm", "start"]
+CMD ["node", "server.js"]

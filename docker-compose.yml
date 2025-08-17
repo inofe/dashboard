@@ -8,15 +8,7 @@ services:
     env_file:
       - .env
     expose:
-      - "${PORT:-4000}"
+      - "${PORT}"
     volumes:
-      - ./uploads:/app/uploads
-      - ./logs:/app/logs
       - ./data:/app/data
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:${PORT:-4000}/dashboard/login', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
