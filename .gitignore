@@ -74,3 +74,5 @@ sessions/
 
 # Cache
 .cache/
+system-architecture.puml
+CLAUDE.md

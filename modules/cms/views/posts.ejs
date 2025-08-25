@@ -75,10 +75,20 @@
                                         <div class="text-sm font-medium text-gray-900">
                                             <%= post.title %>
                                         </div>
-                                        <div class="text-sm text-gray-500">
-                                            Slug: <%= post.slug %> | Durum: <%= post.status %> 
-                                            <% if (post.published_at) { %>
-                                                | Yayın: <%= new Date(post.published_at).toLocaleDateString('tr-TR') %>
+                                        <div class="text-sm text-gray-500 flex items-center">
+                                            <span class="mr-4">Slug: <%= post.slug %></span>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                                <%= post.status === 'published' ? 'bg-green-100 text-green-800' : 
+                                                    post.status === 'draft' ? 'bg-yellow-100 text-yellow-800' : 
+                                                    'bg-gray-100 text-gray-800' %>">
+                                                <i class="fas <%= post.status === 'published' ? 'fa-check-circle' : 
+                                                                post.status === 'draft' ? 'fa-edit' : 'fa-eye-slash' %> mr-1"></i>
+                                                <%= post.status === 'published' ? 'Yayında' : 
+                                                    post.status === 'draft' ? 'Taslak' : 
+                                                    post.status.charAt(0).toUpperCase() + post.status.slice(1) %>
+                                            </span>
+                                            <% if (post.published_at && post.status === 'published') { %>
+                                                <span class="ml-2 text-gray-400">• <%= new Date(post.published_at).toLocaleDateString('tr-TR') %></span>
                                             <% } %>
                                         </div>
                                         <% if (post.excerpt) { %>
@@ -89,14 +99,36 @@
                                     </div>
                                 </div>
                                 <div class="flex items-center space-x-2">
-                                    <a href="/dashboard/cms/posts/edit/<%= post.id %>" class="text-indigo-600 hover:text-indigo-900 text-sm">
+                                    <!-- Gerçek Link Butonu -->
+                                    <a href="/blog/<%= post.slug %>" 
+                                       target="_blank"
+                                       class="bg-teal-600 hover:bg-teal-700 text-white px-3 py-1 rounded-md text-sm font-medium transition-colors"
+                                       title="Blog yazısını ziyaret et">
+                                        <i class="fas fa-external-link-alt mr-1"></i>Görüntüle
+                                    </a>
+                                    
+                                    <!-- Status Toggle Button -->
+                                    <button 
+                                        data-post-id="<%= post.id %>" 
+                                        data-status="<%= post.status %>"
+                                        class="toggle-status-btn <%= post.status === 'published' ? 'bg-orange-500 hover:bg-orange-600' : 'bg-green-500 hover:bg-green-600' %> text-white px-3 py-1 rounded-md text-sm font-medium transition-colors"
+                                        title="<%= post.status === 'published' ? 'Taslağa Çevir' : 'Yayınla' %>"
+                                    >
+                                        <i class="fas <%= post.status === 'published' ? 'fa-eye-slash' : 'fa-check' %> mr-1"></i>
+                                        <%= post.status === 'published' ? 'Gizle' : 'Yayınla' %>
+                                    </button>
+                                    
+                                    <!-- Düzenle Butonu -->
+                                    <a href="/dashboard/cms/posts/edit/<%= post.id %>" 
+                                       class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm font-medium transition-colors">
                                         <i class="fas fa-edit mr-1"></i>Düzenle
                                     </a>
-                                    <form method="POST" action="/dashboard/cms/posts/delete/<%= post.id %>" class="inline" onsubmit="return confirm('Bu blog yazısını silmek istediğinizden emin misiniz?')">
-                                        <button type="submit" class="text-red-600 hover:text-red-900 text-sm">
-                                            <i class="fas fa-trash mr-1"></i>Sil
-                                        </button>
-                                    </form>
+                                    
+                                    <!-- Silme Butonu -->
+                                    <button class="delete-post-btn bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-sm font-medium transition-colors" 
+                                            data-post-id="<%= post.id %>">
+                                        <i class="fas fa-trash mr-1"></i>Sil
+                                    </button>
                                 </div>
                             </div>
                         </li>
@@ -119,5 +151,70 @@
             </div>
         </main>
     </div>
+
+    <script>
+        // Status toggle fonksiyonu
+        async function toggleStatus(postId, currentStatus) {
+            try {
+                const response = await fetch(`/dashboard/cms/posts/toggle-status/${postId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Sayfayı yenile
+                    location.reload();
+                } else {
+                    alert('Hata: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Status toggle error:', error);
+                alert('Bir hata oluştu. Lütfen tekrar deneyin.');
+            }
+        }
+
+        // Delete fonksiyonu
+        async function deletePost(postId) {
+            if (!confirm('Bu blog yazısını silmek istediğinizden emin misiniz?')) {
+                return;
+            }
+
+            try {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/dashboard/cms/posts/delete/${postId}`;
+                document.body.appendChild(form);
+                form.submit();
+            } catch (error) {
+                console.error('Delete error:', error);
+                alert('Bir hata oluştu. Lütfen tekrar deneyin.');
+            }
+        }
+
+        // Event listeners ekle
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle butonlarına event listener ekle
+            document.querySelectorAll('.toggle-status-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const postId = this.getAttribute('data-post-id');
+                    const currentStatus = this.getAttribute('data-status');
+                    toggleStatus(postId, currentStatus);
+                });
+            });
+
+            // Delete butonlarına event listener ekle
+            document.querySelectorAll('.delete-post-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const postId = this.getAttribute('data-post-id');
+                    deletePost(postId);
+                });
+            });
+        });
+    </script>
 </body>
 </html>

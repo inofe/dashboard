@@ -47,7 +47,13 @@ async function setupDatabase() {
 
 // Eğer bu dosya direkt çalıştırılıyorsa
 if (require.main === module) {
-    setupDatabase();
+    setupDatabase().then(() => {
+        console.log('Setup tamamlandı.');
+        process.exit(0);
+    }).catch((error) => {
+        console.error('Setup hatası:', error);
+        process.exit(1);
+    });
 }
 
 module.exports = setupDatabase;

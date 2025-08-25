@@ -103,7 +103,8 @@ router.get('/cms/pages/create', requireAuth, async (req, res) => {
 
 router.post('/cms/pages/create', requireAuth, async (req, res) => {
     try {
-        const { title, slug, content, meta_title, meta_description, status } = req.body;
+        const { title, content, meta_title, meta_description, status } = req.body;
+        let { slug } = req.body;
         
         // Validasyon
         if (!title || !content) {
@@ -116,16 +117,25 @@ router.post('/cms/pages/create', requireAuth, async (req, res) => {
             return res.send(html);
         }
 
+        // Slug otomatik üretimi
+        const { generateUniqueSlug } = require('../../core/utils');
+        if (!slug || slug.trim() === '') {
+            slug = await generateUniqueSlug(title, 'cms_pages');
+        } else {
+            // Manuel slug varsa benzersizliğini kontrol et
+            slug = await generateUniqueSlug(slug, 'cms_pages');
+        }
+
         // Database'e kaydet
         const { createPage } = require('../../core/database');
         const pageId = await createPage({ title, slug, content, meta_title, meta_description, status });
         
-        console.log('Yeni sayfa oluşturuldu:', { title, slug, content, id: pageId });
+        console.log('Yeni sayfa oluşturuldu:', { title, slug, id: pageId });
         
         const html = await renderCMSView('page-create', { 
             user: req.session.user,
             page: null,
-            message: 'Sayfa başarıyla oluşturuldu!',
+            message: `Sayfa başarıyla oluşturuldu! URL: /${slug}`,
             success: true
         });
         res.send(html);
@@ -177,7 +187,8 @@ router.get('/cms/posts/create', requireAuth, async (req, res) => {
 
 router.post('/cms/posts/create', requireAuth, async (req, res) => {
     try {
-        const { title, slug, content, excerpt, meta_title, meta_description, status, tags } = req.body;
+        const { title, content, meta_title, meta_description, status, tags } = req.body;
+        let { slug, excerpt } = req.body;
         
         // Validasyon
         if (!title || !content) {
@@ -190,14 +201,30 @@ router.post('/cms/posts/create', requireAuth, async (req, res) => {
             return res.send(html);
         }
 
+        // Slug otomatik üretimi
+        const { generateUniqueSlug, generateExcerpt } = require('../../core/utils');
+        if (!slug || slug.trim() === '') {
+            slug = await generateUniqueSlug(title, 'cms_posts');
+        } else {
+            // Manuel slug varsa benzersizliğini kontrol et
+            slug = await generateUniqueSlug(slug, 'cms_posts');
+        }
+
+        // Excerpt otomatik üretimi (eğer boşsa)
+        if (!excerpt || excerpt.trim() === '') {
+            excerpt = generateExcerpt(content, 160);
+        }
+
         // Database'e kaydet
         const { createPost } = require('../../core/database');
         const postId = await createPost({ title, slug, content, excerpt, meta_title, meta_description, tags, status });
         
+        console.log('Yeni blog yazısı oluşturuldu:', { title, slug, id: postId });
+        
         const html = await renderCMSView('post-create', { 
             user: req.session.user,
             post: null,
-            message: 'Blog yazısı başarıyla oluşturuldu!',
+            message: `Blog yazısı başarıyla oluşturuldu! URL: /blog/${slug}`,
             success: true
         });
         res.send(html);
@@ -304,12 +331,14 @@ router.get('/cms/pages/edit/:id', requireAuth, async (req, res) => {
 
 router.post('/cms/pages/edit/:id', requireAuth, async (req, res) => {
     try {
-        const { title, slug, content, meta_title, meta_description, status } = req.body;
+        const { title, content, meta_title, meta_description, status } = req.body;
+        let { slug } = req.body;
+        const pageId = req.params.id;
         
         // Validasyon
         if (!title || !content) {
             const { getPageById } = require('../../core/database');
-            const page = await getPageById(req.params.id);
+            const page = await getPageById(pageId);
             const html = await renderCMSView('page-create', { 
                 user: req.session.user,
                 page: { ...page, ...req.body },
@@ -319,9 +348,20 @@ router.post('/cms/pages/edit/:id', requireAuth, async (req, res) => {
             return res.send(html);
         }
 
+        // Slug güncelleme/üretimi
+        const { generateUniqueSlug } = require('../../core/utils');
+        if (!slug || slug.trim() === '') {
+            slug = await generateUniqueSlug(title, 'cms_pages', pageId);
+        } else {
+            // Manuel slug varsa benzersizliğini kontrol et (kendi ID'si hariç)
+            slug = await generateUniqueSlug(slug, 'cms_pages', pageId);
+        }
+
         // Database'de güncelle
         const { updatePage } = require('../../core/database');
-        await updatePage(req.params.id, { title, slug, content, meta_title, meta_description, status });
+        await updatePage(pageId, { title, slug, content, meta_title, meta_description, status });
+        
+        console.log('Sayfa güncellendi:', { title, slug, id: pageId });
         
         // Başarılı güncelleme sonrası sayfa listesine yönlendir
         res.redirect('/dashboard/cms/pages');
@@ -336,6 +376,55 @@ router.post('/cms/pages/edit/:id', requireAuth, async (req, res) => {
             success: false
         });
         res.send(html);
+    }
+});
+
+
+// Sayfa Status Değiştirme
+router.post('/cms/pages/toggle-status/:id', requireAuth, async (req, res) => {
+    try {
+        const { getPageById, updatePage } = require('../../core/database');
+        const page = await getPageById(req.params.id);
+        
+        if (!page) {
+            return res.status(404).json({ success: false, message: 'Sayfa bulunamadı' });
+        }
+
+        // Status'u değiştir: draft ↔ published
+        const newStatus = page.status === 'published' ? 'draft' : 'published';
+        const updateData = { 
+            ...page,
+            status: newStatus
+        };
+        
+        await updatePage(req.params.id, updateData);
+        
+        const statusText = newStatus === 'published' ? 'Yayınlandı' : 'Taslak';
+        
+        // JSON response for AJAX
+        if (req.headers.accept && req.headers.accept.includes('application/json')) {
+            return res.json({ 
+                success: true, 
+                message: `Sayfa ${statusText} olarak işaretlendi`,
+                status: newStatus,
+                statusText: statusText
+            });
+        }
+        
+        // Regular form submission redirect
+        res.redirect('/dashboard/cms/pages');
+        
+    } catch (error) {
+        console.error('Status değiştirme hatası:', error);
+        
+        if (req.headers.accept && req.headers.accept.includes('application/json')) {
+            return res.status(500).json({ 
+                success: false, 
+                message: 'Status değiştirilirken hata oluştu: ' + error.message 
+            });
+        }
+        
+        res.status(500).send('Status değiştirilirken hata oluştu');
     }
 });
 
@@ -374,12 +463,14 @@ router.get('/cms/posts/edit/:id', requireAuth, async (req, res) => {
 
 router.post('/cms/posts/edit/:id', requireAuth, async (req, res) => {
     try {
-        const { title, slug, content, excerpt, meta_title, meta_description, tags, status } = req.body;
+        const { title, content, meta_title, meta_description, tags, status } = req.body;
+        let { slug, excerpt } = req.body;
+        const postId = req.params.id;
         
         // Validasyon
         if (!title || !content) {
             const { getPostById } = require('../../core/database');
-            const post = await getPostById(req.params.id);
+            const post = await getPostById(postId);
             const html = await renderCMSView('post-create', { 
                 user: req.session.user,
                 post: { ...post, ...req.body },
@@ -389,9 +480,25 @@ router.post('/cms/posts/edit/:id', requireAuth, async (req, res) => {
             return res.send(html);
         }
 
+        // Slug güncelleme/üretimi
+        const { generateUniqueSlug, generateExcerpt } = require('../../core/utils');
+        if (!slug || slug.trim() === '') {
+            slug = await generateUniqueSlug(title, 'cms_posts', postId);
+        } else {
+            // Manuel slug varsa benzersizliğini kontrol et (kendi ID'si hariç)
+            slug = await generateUniqueSlug(slug, 'cms_posts', postId);
+        }
+
+        // Excerpt güncelleme/üretimi
+        if (!excerpt || excerpt.trim() === '') {
+            excerpt = generateExcerpt(content, 160);
+        }
+
         // Database'de güncelle
         const { updatePost } = require('../../core/database');
-        await updatePost(req.params.id, { title, slug, content, excerpt, meta_title, meta_description, tags, status });
+        await updatePost(postId, { title, slug, content, excerpt, meta_title, meta_description, tags, status });
+        
+        console.log('Blog yazısı güncellendi:', { title, slug, id: postId });
         
         // Başarılı güncelleme sonrası blog listesine yönlendir
         res.redirect('/dashboard/cms/posts');
@@ -406,6 +513,56 @@ router.post('/cms/posts/edit/:id', requireAuth, async (req, res) => {
             success: false
         });
         res.send(html);
+    }
+});
+
+
+// Blog Yazısı Status Değiştirme
+router.post('/cms/posts/toggle-status/:id', requireAuth, async (req, res) => {
+    try {
+        const { getPostById, updatePost } = require('../../core/database');
+        const post = await getPostById(req.params.id);
+        
+        if (!post) {
+            return res.status(404).json({ success: false, message: 'Blog yazısı bulunamadı' });
+        }
+
+        // Status'u değiştir: draft ↔ published
+        const newStatus = post.status === 'published' ? 'draft' : 'published';
+        const updateData = { 
+            ...post,
+            status: newStatus,
+            published_at: newStatus === 'published' ? new Date().toISOString() : null
+        };
+        
+        await updatePost(req.params.id, updateData);
+        
+        const statusText = newStatus === 'published' ? 'Yayınlandı' : 'Taslak';
+        
+        // JSON response for AJAX
+        if (req.headers.accept && req.headers.accept.includes('application/json')) {
+            return res.json({ 
+                success: true, 
+                message: `Blog yazısı ${statusText} olarak işaretlendi`,
+                status: newStatus,
+                statusText: statusText
+            });
+        }
+        
+        // Regular form submission redirect
+        res.redirect('/dashboard/cms/posts');
+        
+    } catch (error) {
+        console.error('Status değiştirme hatası:', error);
+        
+        if (req.headers.accept && req.headers.accept.includes('application/json')) {
+            return res.status(500).json({ 
+                success: false, 
+                message: 'Status değiştirilirken hata oluştu: ' + error.message 
+            });
+        }
+        
+        res.status(500).send('Status değiştirilirken hata oluştu');
     }
 });
 

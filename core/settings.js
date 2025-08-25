@@ -144,9 +144,14 @@ const enableModule = async (moduleName) => {
 };
 
 const disableModule = async (moduleName) => {
-    // Core modüller devre dışı bırakılamaz
-    if (moduleName === 'proposals' || moduleName === 'dashboard') {
+    // Sadece dashboard core modülü devre dışı bırakılamaz
+    if (moduleName === 'dashboard') {
         throw new Error(`${moduleName} core modül olduğu için devre dışı bırakılamaz`);
+    }
+    
+    // İçerik yönetimi modülü devre dışı bırakılamaz
+    if (moduleName === 'cms') {
+        throw new Error(`${moduleName} içerik yönetimi modülü devre dışı bırakılamaz`);
     }
     
     const modules = await getEnabledModules();

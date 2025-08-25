@@ -1,0 +1,85 @@
+<!-- BizeBi Inspired Header -->
+<nav class="bg-white shadow-lg fixed w-full top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+            <!-- Logo -->
+            <div class="flex-shrink-0 flex items-center">
+                <a href="/" class="text-2xl font-bold text-blue-600">
+                    <%= siteName %>
+                </a>
+            </div>
+
+            <!-- Desktop Navigation -->
+            <div class="hidden md:block">
+                <div class="ml-10 flex items-baseline space-x-8">
+                    <a href="/" class="<%= currentPage === 'home' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-700 hover:text-blue-600' %> px-3 py-2 text-sm font-medium transition-colors duration-200">
+                        Ana Sayfa
+                    </a>
+                    <a href="/blog" class="<%= currentPage === 'blog' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-700 hover:text-blue-600' %> px-3 py-2 text-sm font-medium transition-colors duration-200">
+                        Blog
+                    </a>
+                    <% if (typeof pages !== 'undefined' && pages.length > 0) { %>
+                        <% pages.forEach(page => { %>
+                            <a href="/page/<%= page.slug %>" class="<%= currentPage === 'page-' + page.slug ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-700 hover:text-blue-600' %> px-3 py-2 text-sm font-medium transition-colors duration-200">
+                                <%= page.title %>
+                            </a>
+                        <% }); %>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Contact Button -->
+            <div class="hidden md:block">
+                <a href="mailto:info@<%= siteName.toLowerCase() %>.com" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                    İletişim
+                </a>
+            </div>
+
+            <!-- Mobile menu button -->
+            <div class="md:hidden">
+                <button type="button" id="mobileMenuToggle" class="text-gray-700 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-controls="mobile-menu" aria-expanded="false">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <div class="md:hidden hidden" id="mobile-menu">
+        <div class="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-200">
+            <a href="/" class="<%= currentPage === 'home' ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50' %> block px-3 py-2 text-base font-medium rounded-md">
+                Ana Sayfa
+            </a>
+            <a href="/blog" class="<%= currentPage === 'blog' ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50' %> block px-3 py-2 text-base font-medium rounded-md">
+                Blog
+            </a>
+            <% if (typeof pages !== 'undefined' && pages.length > 0) { %>
+                <% pages.forEach(page => { %>
+                    <a href="/page/<%= page.slug %>" class="<%= currentPage === 'page-' + page.slug ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50' %> block px-3 py-2 text-base font-medium rounded-md">
+                        <%= page.title %>
+                    </a>
+                <% }); %>
+            <% } %>
+            <a href="mailto:info@<%= siteName.toLowerCase() %>.com" class="text-blue-600 hover:bg-gray-50 block px-3 py-2 text-base font-medium rounded-md">
+                İletişim
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- Spacer for fixed nav -->
+<div class="h-16"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    if (mobileMenuToggle) {
+        mobileMenuToggle.addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
+    }
+});
+</script>

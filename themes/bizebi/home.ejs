@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= siteName %></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'blue': {
+                            50: '#eff6ff',
+                            100: '#dbeafe', 
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <%- include('partials/public-header', { 
+        currentPage: 'home', 
+        siteName: siteName, 
+        pages: pages 
+    }) %>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="text-center lg:text-left">
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+                        <%= siteName %>
+                    </h1>
+                    <p class="text-xl md:text-2xl mb-8 text-blue-100 leading-relaxed">
+                        <% if (typeof siteDescription !== 'undefined') { %>
+                            <%= siteDescription %>
+                        <% } else { %>
+                            Teknolojiyi Kodla Buluşturup Değer Katıyoruz
+                        <% } %>
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                        <a href="/blog" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200">
+                            Blog Yazılarımız
+                        </a>
+                        <a href="mailto:info@<%= siteName.toLowerCase() %>.com" class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors duration-200">
+                            İletişime Geç
+                        </a>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <div class="bg-white/10 rounded-2xl p-8 backdrop-blur-sm">
+                        <i class="fas fa-code text-6xl mb-4 text-blue-200"></i>
+                        <h3 class="text-2xl font-bold mb-4">Modern Teknolojiler</h3>
+                        <p class="text-blue-100">En güncel web teknolojileri ile profesyonel çözümler</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Hizmetlerimiz</h2>
+                <p class="text-xl text-gray-600">Profesyonel web çözümleri ile işinizi dijitale taşıyoruz</p>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-gray-50 rounded-xl p-8 hover:shadow-lg transition-shadow duration-300">
+                    <div class="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-6">
+                        <i class="fas fa-laptop-code text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Web Development</h3>
+                    <p class="text-gray-600">Modern ve responsive web siteleri geliştiriyoruz</p>
+                </div>
+                <div class="bg-gray-50 rounded-xl p-8 hover:shadow-lg transition-shadow duration-300">
+                    <div class="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-6">
+                        <i class="fas fa-mobile-alt text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Responsive Design</h3>
+                    <p class="text-gray-600">Tüm cihazlarda mükemmel görünüm</p>
+                </div>
+                <div class="bg-gray-50 rounded-xl p-8 hover:shadow-lg transition-shadow duration-300">
+                    <div class="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-6">
+                        <i class="fas fa-rocket text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Performans</h3>
+                    <p class="text-gray-600">Hızlı ve optimize edilmiş web çözümleri</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recent Blog Posts -->
+    <% if (recentPosts && recentPosts.length > 0) { %>
+    <section class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Son Blog Yazıları</h2>
+                <p class="text-xl text-gray-600">Teknoloji dünyasından güncel haberler ve öneriler</p>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <% recentPosts.slice(0, 3).forEach(post => { %>
+                <article class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-3 line-clamp-2">
+                            <a href="/blog/<%= post.slug %>" class="hover:text-blue-600 transition-colors duration-200">
+                                <%= post.title %>
+                            </a>
+                        </h3>
+                        <p class="text-gray-600 mb-4 line-clamp-3">
+                            <%= post.excerpt || post.content.substring(0, 150) + '...' %>
+                        </p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-500">
+                                <%= new Date(post.created_at).toLocaleDateString('tr-TR') %>
+                            </span>
+                            <a href="/blog/<%= post.slug %>" class="text-blue-600 hover:text-blue-700 font-semibold text-sm">
+                                Devamını Oku →
+                            </a>
+                        </div>
+                    </div>
+                </article>
+                <% }); %>
+            </div>
+            <div class="text-center mt-12">
+                <a href="/blog" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors duration-200">
+                    Tüm Yazıları Görüntüle
+                </a>
+            </div>
+        </div>
+    </section>
+    <% } %>
+
+    <!-- Pages Section -->
+    <% if (pages && pages.length > 0) { %>
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Sayfalarımız</h2>
+                <p class="text-xl text-gray-600">Hakkımızda daha fazla bilgi edinin</p>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <% pages.slice(0, 4).forEach(page => { %>
+                <a href="/page/<%= page.slug %>" class="bg-gray-50 hover:bg-blue-50 rounded-xl p-6 text-center transition-colors duration-200 group">
+                    <div class="w-12 h-12 bg-blue-600 group-hover:bg-blue-700 rounded-lg flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-file-alt text-white text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 group-hover:text-blue-600">
+                        <%= page.title %>
+                    </h3>
+                </a>
+                <% }); %>
+            </div>
+        </div>
+    </section>
+    <% } %>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="lg:col-span-2">
+                    <h3 class="text-2xl font-bold mb-4"><%= siteName %></h3>
+                    <p class="text-gray-300 mb-6 max-w-md">
+                        <% if (typeof siteDescription !== 'undefined') { %>
+                            <%= siteDescription %>
+                        <% } else { %>
+                            Modern web teknolojileri ile işinizi dijitale taşıyoruz.
+                        <% } %>
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center hover:bg-blue-700 transition-colors duration-200">
+                            <i class="fab fa-twitter text-white"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center hover:bg-blue-700 transition-colors duration-200">
+                            <i class="fab fa-linkedin text-white"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center hover:bg-blue-700 transition-colors duration-200">
+                            <i class="fab fa-github text-white"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Hızlı Linkler</h4>
+                    <div class="space-y-2">
+                        <a href="/" class="text-gray-300 hover:text-white transition-colors duration-200 block">Ana Sayfa</a>
+                        <a href="/blog" class="text-gray-300 hover:text-white transition-colors duration-200 block">Blog</a>
+                        <% if (typeof pages !== 'undefined' && pages.length > 0) { %>
+                            <% pages.slice(0, 3).forEach(page => { %>
+                                <a href="/page/<%= page.slug %>" class="text-gray-300 hover:text-white transition-colors duration-200 block">
+                                    <%= page.title %>
+                                </a>
+                            <% }); %>
+                        <% } %>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">İletişim</h4>
+                    <div class="space-y-2 text-gray-300">
+                        <p><i class="fas fa-envelope mr-2"></i>info@<%= siteName.toLowerCase() %>.com</p>
+                        <p><i class="fas fa-phone mr-2"></i>+90 XXX XXX XX XX</p>
+                        <p><i class="fas fa-clock mr-2"></i>Pazartesi - Cumartesi, 9:00 - 18:00</p>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
+                <p>&copy; <%= new Date().getFullYear() %> <%= siteName %>. Tüm hakları saklıdır.</p>
+            </div>
+        </div>
+    </footer>
+
+    <style>
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
+</body>
+</html>

@@ -3,17 +3,25 @@ const path = require('path');
 const ejs = require('ejs');
 const router = express.Router();
 const { getProposalById, getProposalResponses, getAllSettings, addProposalResponse, getAllPosts, getAllPages, getSettingNew } = require('../core/database');
-const { renderWithTheme } = require('../core/theme');
+const { renderWithTheme, render404Page, getFaviconHTML } = require('../core/theme');
 
 // Public frontend için render fonksiyonu - TEMA DESTEKLI
 const renderPublicView = async (viewName, data = {}) => {
     try {
-        return await renderWithTheme(viewName, data);
+        // Favicon HTML'i tüm sayfalara ekle
+        const faviconHTML = await getFaviconHTML();
+        const enhancedData = {
+            ...data,
+            faviconHTML
+        };
+        
+        return await renderWithTheme(viewName, enhancedData);
     } catch (error) {
         console.error(`Theme render error for ${viewName}:`, error);
         // Fallback to original method
         const viewPath = path.join(__dirname, '../views', 'public', `${viewName}.ejs`);
-        return await ejs.renderFile(viewPath, data);
+        const faviconHTML = await getFaviconHTML();
+        return await ejs.renderFile(viewPath, { ...data, faviconHTML });
     }
 };
 
@@ -71,7 +79,8 @@ router.get('/blog/:slug', async (req, res) => {
         const post = allPosts.find(p => p.slug === req.params.slug && p.status === 'published');
         
         if (!post) {
-            return res.status(404).send('Blog yazısı bulunamadı');
+            const html = await render404Page();
+            return res.status(404).send(html);
         }
         
         const siteName = await getSettingNew('general', 'company_name', 'Website');
@@ -96,7 +105,8 @@ router.get('/page/:slug', async (req, res) => {
         const page = allPages.find(p => p.slug === req.params.slug && p.status === 'published');
         
         if (!page) {
-            return res.status(404).send('Sayfa bulunamadı');
+            const html = await render404Page();
+            return res.status(404).send(html);
         }
         
         const siteName = await getSettingNew('general', 'company_name', 'Website');
@@ -120,7 +130,7 @@ router.get('/proposal/:id', async (req, res) => {
         const proposal = await getProposalById(req.params.id);
         
         if (!proposal) {
-            const html = await renderPublicView('404');
+            const html = await render404Page();
             return res.status(404).send(html);
         }
         
@@ -214,7 +224,7 @@ router.post('/proposal/:id/response', async (req, res) => {
         
         const proposal = await getProposalById(proposalId);
         if (!proposal || !proposal.is_active) {
-            const html = await renderPublicView('404');
+            const html = await render404Page();
             return res.status(404).send(html);
         }
         

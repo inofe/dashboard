@@ -313,6 +313,55 @@ mkdir themes/mytheme/partials
    ```
 4. **CSP Uyumluluğu**: Yeni CDN eklerken `core/security.js`'de CSP güncelleyin
 
+## 🔒 Content Security Policy (CSP) Uyumluluğu
+
+### ⚠️ Geliştirici Notu - Inline Event Handler Yasağı
+
+Bu sistem **Content Security Policy (CSP)** ile güvenlik altındadır. Bu nedenle:
+
+**❌ YAPMAYIN:**
+```html
+<button onclick="myFunction()">Click me</button>
+<div onmouseover="doSomething()">Hover me</div>
+```
+
+**✅ YAPIN:**
+```html
+<button id="myButton">Click me</button>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const button = document.getElementById('myButton');
+    if (button) {
+        button.addEventListener('click', function() {
+            myFunction();
+        });
+    }
+});
+</script>
+```
+
+### CSP Kuralları:
+- `script-src-attr 'none'` - Inline event handlerlar yasaklanmıştır
+- Tüm JavaScript eventleri `addEventListener` ile yazılmalıdır
+- Script tagları içindeki kodlar güvenlidir
+- External CDN'ler security.js'de tanımlanmalıdır
+
+### Örnek Doğru Kullanım:
+```html
+<!-- ❌ Yanlış -->
+<button onclick="printPage()">Yazdır</button>
+
+<!-- ✅ Doğru -->
+<button id="printBtn">Yazdır</button>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('printBtn')?.addEventListener('click', () => {
+        window.print();
+    });
+});
+</script>
+```
+
 ## 🎨 Örnek Temalar
 
 - **default**: Tailwind CSS ile minimal tema

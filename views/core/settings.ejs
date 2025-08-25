@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ayarlar | Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"><%- faviconHTML %>
 </head>
 <body class="h-full">
     <div class="min-h-full">
@@ -37,17 +37,33 @@
                         </div>
 
                         <% if (message) { %>
-                        <div class="<%= success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200' %> border rounded-md p-4 mb-6">
+                        <div id="settingsAlert" class="<%= success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200' %> border rounded-md p-4 mb-6">
                             <div class="flex">
                                 <div class="flex-shrink-0">
                                     <i class="fas <%= success ? 'fa-check-circle text-green-400' : 'fa-exclamation-circle text-red-400' %>"></i>
                                 </div>
                                 <div class="ml-3">
-                                    <p class="text-sm font-medium <%= success ? 'text-green-800' : 'text-red-800' %>"><%= message %></p>
+                                    <p class="text-sm font-medium <%= success ? 'text-green-800' : 'text-red-800' %>"><%- message %></p>
                                 </div>
                             </div>
                         </div>
                         <% } %>
+
+                        <!-- Toast Notification -->
+                        <div id="moduleToast" class="fixed top-4 right-4 max-w-md bg-white shadow-lg rounded-lg border border-gray-200 p-4 transform translate-x-full opacity-0 transition-all duration-300 z-50" style="display: none;">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0">
+                                    <i id="toastIcon" class="fas fa-puzzle-piece text-indigo-500 text-xl"></i>
+                                </div>
+                                <div class="ml-3 flex-1">
+                                    <p class="text-sm font-medium text-gray-900">Modül Değişiklikleri</p>
+                                    <p id="toastMessage" class="text-sm text-gray-600 mt-1"></p>
+                                </div>
+                                <button onclick="closeToast()" class="ml-4 text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
 
                         <form method="POST" action="/dashboard/settings" enctype="multipart/form-data" class="space-y-8">
                             
@@ -83,6 +99,43 @@
                                             <p class="text-xs text-gray-500">PNG, JPG, GIF max 2MB</p>
                                         </div>
                                     </div>
+                                </div>
+
+                                <!-- Favicon -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-4">
+                                        <i class="fas fa-star mr-2"></i>Favicon (Site İkonu)
+                                    </label>
+                                    
+                                    <!-- Current Favicon -->
+                                    <% if (settings.favicon) { %>
+                                    <div class="mb-4">
+                                        <p class="text-sm text-gray-600 mb-2">Mevcut favicon:</p>
+                                        <div class="w-16 h-16 border border-gray-300 rounded-lg p-2 bg-gray-50 flex items-center justify-center">
+                                            <img src="<%= settings.favicon %>" alt="Favicon" class="max-w-full max-h-full object-contain">
+                                        </div>
+                                    </div>
+                                    <% } %>
+                                    
+                                    <!-- Upload New Favicon -->
+                                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-gray-400 transition-colors">
+                                        <div class="space-y-1 text-center">
+                                            <i class="fas fa-star text-gray-400 text-3xl"></i>
+                                            <div class="flex text-sm text-gray-600">
+                                                <label for="favicon" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+                                                    <span>Favicon yükle</span>
+                                                    <input id="favicon" name="favicon" type="file" accept=".ico,.png,.jpg,.jpeg" class="sr-only">
+                                                </label>
+                                                <p class="pl-1">veya sürükle bırak</p>
+                                            </div>
+                                            <p class="text-xs text-gray-500">ICO, PNG, JPG - 16x16 veya 32x32 px önerilen</p>
+                                        </div>
+                                    </div>
+                                    <p class="mt-2 text-xs text-gray-500">
+                                        <i class="fas fa-info-circle mr-1"></i>
+                                        Favicon, tarayıcı sekmelerinde ve yer imlerinde görünen küçük ikondur. 
+                                        Tüm sayfalarda otomatik olarak görünecektir.
+                                    </p>
                                 </div>
 
                                 <!-- Company Name -->
@@ -154,7 +207,21 @@
                                         <i class="fas fa-puzzle-piece mr-2 text-indigo-600"></i>
                                         Kullanılabilir Modüller
                                     </h4>
-                                    <p class="text-sm text-gray-600 mb-6">Panelinizdeki özellikler modüller halinde organize edilmiştir. İstediğiniz modülleri aktif edebilirsiniz.</p>
+                                    <p class="text-sm text-gray-600 mb-6">Panelinizdeki özellikler modüller halinde organize edilmiştir. İstediğiniz modülleri aktif/deaktif edebilirsiniz.</p>
+                                    
+                                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+                                        <div class="flex">
+                                            <div class="flex-shrink-0">
+                                                <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+                                            </div>
+                                            <div class="ml-3">
+                                                <p class="text-sm text-yellow-700">
+                                                    <strong>Dikkat:</strong> <span class="text-red-600 font-semibold">İçerik Yönetimi (CMS)</span> modülü sistem için kritik olduğu için devre dışı bırakılamaz.
+                                                    <br>Teklif Yönetimi ve diğer modüller isteğe bağlı olarak aktif/deaktif edilebilir.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
                                     
                                     <div class="space-y-4">
                                         <% if (typeof moduleStatus !== 'undefined') { %>
@@ -169,7 +236,7 @@
                                                        name="enabled_modules" 
                                                        value="<%= moduleName %>" 
                                                        <%= isEnabled ? 'checked' : '' %>
-                                                       <%= isCore ? 'disabled' : '' %>
+                                                       <%= (moduleName === 'cms' || moduleName === 'dashboard') ? 'disabled' : '' %>
                                                        class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
                                                 <div class="ml-3">
                                                     <label class="text-sm font-medium text-gray-900">
@@ -183,16 +250,24 @@
                                                 </div>
                                             </div>
                                             <div class="flex items-center space-x-2">
-                                                <% if (module.loaded) { %>
+                                                <% if (module.enabled && module.loaded) { %>
                                                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                    <i class="fas fa-check-circle mr-1"></i>Yüklü
+                                                    <i class="fas fa-check-circle mr-1"></i>Aktif
+                                                </span>
+                                                <% } else if (module.loaded && !module.enabled) { %>
+                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                    <i class="fas fa-pause-circle mr-1"></i>Yüklü/Deaktif
                                                 </span>
                                                 <% } else { %>
                                                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                                                     <i class="fas fa-times-circle mr-1"></i>Pasif
                                                 </span>
                                                 <% } %>
-                                                <% if (isCore) { %>
+                                                <% if (moduleName === 'cms' || moduleName === 'dashboard') { %>
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                    <i class="fas fa-lock mr-1"></i>Sabit
+                                                </span>
+                                                <% } else if (isCore) { %>
                                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                                     Temel Modül
                                                 </span>
@@ -226,30 +301,8 @@
                                     <div class="bg-white rounded-lg border border-gray-200 p-6">
                                         <h5 class="text-base font-medium text-gray-900 mb-4">🎨 Tema Seçimi</h5>
                                         
-                                        <div class="space-y-4">
-                                            <!-- Default Tema -->
-                                            <div class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg">
-                                                <input type="radio" id="defaultTheme" name="theme" value="default" 
-                                                       class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
-                                                <div class="flex-1">
-                                                    <label for="defaultTheme" class="block text-sm font-medium text-gray-900 cursor-pointer">
-                                                        Default Tema (Tailwind CSS)
-                                                    </label>
-                                                    <p class="text-xs text-gray-500">Mevcut tasarım - Temiz ve minimal</p>
-                                                </div>
-                                            </div>
-                                            
-                                            <!-- Modern Tema -->
-                                            <div class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg">
-                                                <input type="radio" id="modernTheme" name="theme" value="modern" 
-                                                       class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
-                                                <div class="flex-1">
-                                                    <label for="modernTheme" class="block text-sm font-medium text-gray-900 cursor-pointer">
-                                                        Modern Tema (Bootstrap 5)
-                                                    </label>
-                                                    <p class="text-xs text-gray-500">Bootstrap ile modern ve responsive tasarım</p>
-                                                </div>
-                                            </div>
+                                        <div id="themesContainer" class="space-y-4">
+                                            <!-- Temalar buraya dinamik olarak yüklenecek -->
                                         </div>
                                         
                                         <div class="mt-6">
@@ -389,15 +442,13 @@
                 alert('Lütfen bir tema seçin');
                 return;
             }
-
-            const useModern = selectedTheme.value === 'modern';
             
-            fetch('/dashboard/theme/toggle', {
+            fetch('/dashboard/theme/change', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ useModern: useModern })
+                body: JSON.stringify({ theme: selectedTheme.value })
             })
             .then(response => response.json())
             .then(data => {
@@ -411,7 +462,7 @@
                         messageDiv.classList.add('hidden');
                     }, 3000);
                 } else {
-                    alert('Tema kaydedilirken hata oluştu');
+                    alert('Tema kaydedilirken hata oluştu: ' + (data.error || 'Bilinmeyen hata'));
                 }
             })
             .catch(error => {
@@ -420,30 +471,112 @@
             });
         }
 
-        // Sayfa yüklendiğinde aktif temayı seç ve event listener ekle
+        // Temaları yükle ve listele
+        function loadThemes() {
+            fetch('/dashboard/themes')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const container = document.getElementById('themesContainer');
+                        container.innerHTML = '';
+                        
+                        data.themes.forEach(theme => {
+                            const isActive = theme === data.activeTheme;
+                            
+                            const themeElement = document.createElement('div');
+                            themeElement.className = 'flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200';
+                            
+                            themeElement.innerHTML = `
+                                <input type="radio" 
+                                       name="theme" 
+                                       value="${theme}" 
+                                       id="theme-${theme}"
+                                       ${isActive ? 'checked' : ''}
+                                       class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                <label for="theme-${theme}" class="ml-3 flex-1 cursor-pointer">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900 capitalize">${theme}</p>
+                                            <p class="text-xs text-gray-500">${getThemeDescription(theme)}</p>
+                                        </div>
+                                        ${isActive ? '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"><i class="fas fa-check mr-1"></i>Aktif</span>' : ''}
+                                    </div>
+                                </label>
+                            `;
+                            
+                            container.appendChild(themeElement);
+                        });
+                    } else {
+                        console.error('Temalar yüklenemedi:', data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Theme load error:', error);
+                });
+        }
+
+        // Tema açıklaması getir
+        function getThemeDescription(theme) {
+            const descriptions = {
+                'default': 'Varsayılan tema - Basit ve temiz tasarım',
+                'modern': 'Modern tema - Güncel ve şık görünüm',
+                'bizebi': 'BizeBi teması - Mavi/beyaz profesyonel tasarım'
+            };
+            return descriptions[theme] || 'Özel tema';
+        }
+
+        // Toast notification functions
+        function showToast(message) {
+            const toast = document.getElementById('moduleToast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.innerHTML = message;
+            toast.style.display = 'block';
+            
+            // Animate in
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full', 'opacity-0');
+                toast.classList.add('translate-x-0', 'opacity-100');
+            }, 10);
+            
+            // Auto hide after 6 seconds
+            setTimeout(() => {
+                closeToast();
+            }, 6000);
+        }
+        
+        function closeToast() {
+            const toast = document.getElementById('moduleToast');
+            toast.classList.remove('translate-x-0', 'opacity-100');
+            toast.classList.add('translate-x-full', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 300);
+        }
+
+        // Sayfa yüklendiğinde
         document.addEventListener('DOMContentLoaded', function() {
+            // Temaları yükle
+            loadThemes();
+            
             // Save Theme button event listener
             const saveThemeBtn = document.getElementById('saveThemeBtn');
             if (saveThemeBtn) {
                 saveThemeBtn.addEventListener('click', saveTheme);
             }
             
-            // Aktif temayı al ve radio button'ı seç
-            fetch('/dashboard/api/current-theme')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.theme) {
-                        const themeInput = document.querySelector(`input[value="${data.theme}"]`);
-                        if (themeInput) {
-                            themeInput.checked = true;
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.error('Theme load error:', error);
-                    // Default olarak default theme'i seç
-                    document.getElementById('defaultTheme').checked = true;
-                });
+            <% if (typeof moduleChanged !== 'undefined' && moduleChanged) { %>
+            // Modül değişikliği toast'ını göster
+            const alertElement = document.getElementById('settingsAlert');
+            if (alertElement) {
+                const messageText = alertElement.querySelector('p').innerHTML;
+                const parts = messageText.split('<br>');
+                if (parts.length > 1) {
+                    showToast(parts.slice(1).join('<br>'));
+                }
+            }
+            <% } %>
         });
     </script>
 </body>

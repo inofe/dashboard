@@ -75,20 +75,55 @@
                                         <div class="text-sm font-medium text-gray-900">
                                             <%= page.title %>
                                         </div>
-                                        <div class="text-sm text-gray-500">
-                                            Slug: <%= page.slug %> | Durum: <%= page.status %>
+                                        <div class="text-sm text-gray-500 flex items-center">
+                                            <span class="mr-4">Slug: <%= page.slug %></span>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                                <%= page.status === 'published' ? 'bg-green-100 text-green-800' : 
+                                                    page.status === 'draft' ? 'bg-yellow-100 text-yellow-800' : 
+                                                    'bg-gray-100 text-gray-800' %>">
+                                                <i class="fas <%= page.status === 'published' ? 'fa-check-circle' : 
+                                                                page.status === 'draft' ? 'fa-edit' : 'fa-eye-slash' %> mr-1"></i>
+                                                <%= page.status === 'published' ? 'Yayında' : 
+                                                    page.status === 'draft' ? 'Taslak' : 
+                                                    page.status.charAt(0).toUpperCase() + page.status.slice(1) %>
+                                            </span>
+                                            <% if (page.updated_at) { %>
+                                                <span class="ml-2 text-gray-400">• <%= new Date(page.updated_at).toLocaleDateString('tr-TR') %></span>
+                                            <% } %>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="flex items-center space-x-2">
-                                    <a href="/dashboard/cms/pages/edit/<%= page.id %>" class="text-indigo-600 hover:text-indigo-900 text-sm">
+                                    <!-- Gerçek Link Butonu -->
+                                    <a href="/page/<%= page.slug %>" 
+                                       target="_blank"
+                                       class="bg-teal-600 hover:bg-teal-700 text-white px-3 py-1 rounded-md text-sm font-medium transition-colors"
+                                       title="Sayfayı ziyaret et">
+                                        <i class="fas fa-external-link-alt mr-1"></i>Görüntüle
+                                    </a>
+                                    
+                                    <!-- Status Toggle Button -->
+                                    <button 
+                                        data-page-id="<%= page.id %>" 
+                                        data-status="<%= page.status %>"
+                                        class="toggle-status-btn <%= page.status === 'published' ? 'bg-orange-500 hover:bg-orange-600' : 'bg-green-500 hover:bg-green-600' %> text-white px-3 py-1 rounded-md text-sm font-medium transition-colors"
+                                        title="<%= page.status === 'published' ? 'Taslağa Çevir' : 'Yayınla' %>"
+                                    >
+                                        <i class="fas <%= page.status === 'published' ? 'fa-eye-slash' : 'fa-check' %> mr-1"></i>
+                                        <%= page.status === 'published' ? 'Gizle' : 'Yayınla' %>
+                                    </button>
+                                    
+                                    <!-- Düzenle Butonu -->
+                                    <a href="/dashboard/cms/pages/edit/<%= page.id %>" 
+                                       class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm font-medium transition-colors">
                                         <i class="fas fa-edit mr-1"></i>Düzenle
                                     </a>
-                                    <form method="POST" action="/dashboard/cms/pages/delete/<%= page.id %>" class="inline" onsubmit="return confirm('Bu sayfayı silmek istediğinizden emin misiniz?')">
-                                        <button type="submit" class="text-red-600 hover:text-red-900 text-sm">
-                                            <i class="fas fa-trash mr-1"></i>Sil
-                                        </button>
-                                    </form>
+                                    
+                                    <!-- Silme Butonu -->
+                                    <button class="delete-page-btn bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-sm font-medium transition-colors" 
+                                            data-page-id="<%= page.id %>">
+                                        <i class="fas fa-trash mr-1"></i>Sil
+                                    </button>
                                 </div>
                             </div>
                         </li>
@@ -111,5 +146,70 @@
             </div>
         </main>
     </div>
+
+    <script>
+        // Status toggle fonksiyonu
+        async function togglePageStatus(pageId, currentStatus) {
+            try {
+                const response = await fetch(`/dashboard/cms/pages/toggle-status/${pageId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Sayfayı yenile
+                    location.reload();
+                } else {
+                    alert('Hata: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Status toggle error:', error);
+                alert('Bir hata oluştu. Lütfen tekrar deneyin.');
+            }
+        }
+
+        // Delete fonksiyonu
+        async function deletePage(pageId) {
+            if (!confirm('Bu sayfayı silmek istediğinizden emin misiniz?')) {
+                return;
+            }
+
+            try {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/dashboard/cms/pages/delete/${pageId}`;
+                document.body.appendChild(form);
+                form.submit();
+            } catch (error) {
+                console.error('Delete error:', error);
+                alert('Bir hata oluştu. Lütfen tekrar deneyin.');
+            }
+        }
+
+        // Event listeners ekle
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle butonlarına event listener ekle
+            document.querySelectorAll('.toggle-status-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const pageId = this.getAttribute('data-page-id');
+                    const currentStatus = this.getAttribute('data-status');
+                    togglePageStatus(pageId, currentStatus);
+                });
+            });
+
+            // Delete butonlarına event listener ekle
+            document.querySelectorAll('.delete-page-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const pageId = this.getAttribute('data-page-id');
+                    deletePage(pageId);
+                });
+            });
+        });
+    </script>
 </body>
 </html>

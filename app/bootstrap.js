@@ -39,6 +39,18 @@ const setupDashboardModule = async (app) => {
         const publicRoutes = require('../routes/public');
         app.use('/', publicRoutes);
         
+        // Global 404 handler - EN SONDA OLMALI
+        const { render404Page } = require('../core/theme');
+        app.use(async (req, res, next) => {
+            try {
+                const html = await render404Page();
+                res.status(404).send(html);
+            } catch (error) {
+                console.error('404 handler error:', error);
+                res.status(404).send('Sayfa Bulunamadı');
+            }
+        });
+        
         console.log('🎉 Modüler Dashboard başarıyla yüklendi!');
         console.log(`📊 Toplam ${loadResults.length} modül tarandı`);
         

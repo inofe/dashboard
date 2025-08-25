@@ -101,7 +101,30 @@ class ModuleLoader {
             delete require.cache[require.resolve(modulePath)];
             
             const moduleRoutes = require(modulePath);
-            router.use('/', moduleRoutes);
+            
+            // Module guard middleware - deaktif modüllerin route'larını engelle
+            const moduleGuard = async (req, res, next) => {
+                try {
+                    const enabledModules = await this.getEnabledModules();
+                    if (!enabledModules.includes(moduleName)) {
+                        // HTML response için yönlendirme
+                        if (req.headers.accept && req.headers.accept.includes('text/html')) {
+                            return res.redirect('/dashboard?error=module_disabled&module=' + moduleName);
+                        }
+                        // JSON response için hata
+                        return res.status(403).json({ 
+                            error: `${moduleName} modülü devre dışı`,
+                            redirect: '/dashboard'
+                        });
+                    }
+                    next();
+                } catch (error) {
+                    next();
+                }
+            };
+            
+            // TÜM modülların route'larını yükle ama guard ile koru
+            router.use('/', moduleGuard, moduleRoutes);
             
             this.loadedModules.set(moduleName, {
                 routes: moduleRoutes,
@@ -117,51 +140,50 @@ class ModuleLoader {
     }
 
     /**
-     * Tüm aktif modülleri yükle
+     * TÜM modülleri yükle (guard middleware ile korunarak)
      */
-    async loadEnabledModules(router) {
+    async loadAllModules(router) {
         // Önce modülleri tara
         await this.scanModules();
         
-        // Aktif modülleri al
+        // Aktif modülleri al (sadece log için)
         const enabledModules = await this.getEnabledModules();
-        console.log('Yüklenecek modüller:', enabledModules);
+        console.log('Aktif modüller:', enabledModules);
 
         const loadResults = [];
-
-        for (const moduleName of enabledModules) {
-            // Config var mı kontrol et
-            if (!this.moduleConfigs.has(moduleName)) {
-                console.log(`⚠️ Modül config bulunamadı: ${moduleName}`);
-                continue;
-            }
-
-            // Routes'ları yükle
+        
+        // TÜM modülleri yükle (aktif/deaktif fark etmeksizin)
+        for (const [moduleName, config] of this.moduleConfigs) {
+            // Routes'ları yükle (guard ile korunacak)
             const loaded = await this.loadModuleRoutes(moduleName, router);
             loadResults.push({
                 name: moduleName,
                 loaded: loaded,
-                config: this.moduleConfigs.get(moduleName)
+                config: config,
+                enabled: enabledModules.includes(moduleName)
             });
         }
 
         return loadResults;
     }
+    
+    /**
+     * Backward compatibility - eski method name
+     */
+    async loadEnabledModules(router) {
+        return await this.loadAllModules(router);
+    }
 
     /**
-     * Modül menü items'larını topla (cached)
+     * Modül menü items'larını topla (cached) - sadece aktif modüllerin menüleri
      */
-    getModuleMenuItems() {
-        // Cache kontrolü
-        if (this.menuItemsCache && this.lastScanTime && 
-            (Date.now() - this.lastScanTime < this.cacheTimeout)) {
-            return this.menuItemsCache;
-        }
-
+    async getModuleMenuItems() {
         const menuItems = [];
+        const enabledModules = await this.getEnabledModules();
 
         for (const [moduleName, config] of this.moduleConfigs) {
-            if (config.menuItems && Array.isArray(config.menuItems)) {
+            // Sadece aktif modüllerin menülerini göster
+            if (enabledModules.includes(moduleName) && config.menuItems && Array.isArray(config.menuItems)) {
                 config.menuItems.forEach(item => {
                     menuItems.push({
                         ...item,
@@ -172,9 +194,8 @@ class ModuleLoader {
             }
         }
 
-        // Order'a göre sırala ve cache'le
-        this.menuItemsCache = menuItems.sort((a, b) => (a.order || 99) - (b.order || 99));
-        return this.menuItemsCache;
+        // Order'a göre sırala
+        return menuItems.sort((a, b) => (a.order || 99) - (b.order || 99));
     }
 
     /**
@@ -191,8 +212,9 @@ class ModuleLoader {
     /**
      * Tüm yüklü modüllerin durumunu al
      */
-    getModuleStatus() {
+    async getModuleStatus() {
         const status = {};
+        const enabledModules = await this.getEnabledModules();
         
         for (const [moduleName, config] of this.moduleConfigs) {
             status[moduleName] = {
@@ -200,6 +222,7 @@ class ModuleLoader {
                 version: config.version || '1.0.0',
                 core: config.core || false,
                 loaded: this.loadedModules.has(moduleName),
+                enabled: enabledModules.includes(moduleName),
                 description: config.description || '',
                 category: config.category || 'other'
             };

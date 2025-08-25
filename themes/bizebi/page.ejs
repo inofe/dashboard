@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= page.title %> | <%= siteName %></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'blue': {
+                            50: '#eff6ff',
+                            100: '#dbeafe', 
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta name="description" content="<%= page.content.replace(/<[^>]*>/g, '').substring(0, 160) %>">
+    <meta property="og:title" content="<%= page.title %>">
+    <meta property="og:description" content="<%= page.content.replace(/<[^>]*>/g, '').substring(0, 160) %>">
+    <% if (page.image) { %>
+    <meta property="og:image" content="<%= page.image %>">
+    <% } %>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <%- include('partials/public-header', { 
+        currentPage: 'page-' + page.slug, 
+        siteName: siteName, 
+        pages: pages 
+    }) %>
+
+    <!-- Breadcrumb -->
+    <section class="bg-white border-b border-gray-200 py-4">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav class="flex items-center space-x-2 text-sm text-gray-500">
+                <a href="/" class="hover:text-blue-600 transition-colors duration-200">Ana Sayfa</a>
+                <i class="fas fa-chevron-right text-xs"></i>
+                <span class="text-gray-900"><%= page.title %></span>
+            </nav>
+        </div>
+    </section>
+
+    <!-- Page Header -->
+    <section class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4"><%= page.title %></h1>
+                <% if (page.updated_at) { %>
+                <p class="text-blue-100">
+                    Son güncelleme: <%= new Date(page.updated_at).toLocaleDateString('tr-TR', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    }) %>
+                </p>
+                <% } %>
+            </div>
+        </div>
+    </section>
+
+    <!-- Page Content -->
+    <section class="py-16">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-4 gap-12">
+                <!-- Main Content -->
+                <div class="lg:col-span-3">
+                    <article class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <!-- Featured Image -->
+                        <% if (page.image) { %>
+                        <div class="aspect-w-16 aspect-h-9 mb-8">
+                            <img src="<%= page.image %>" alt="<%= page.title %>" class="w-full h-64 md:h-80 object-cover">
+                        </div>
+                        <% } %>
+
+                        <!-- Content -->
+                        <div class="p-8 md:p-12">
+                            <div class="prose prose-lg max-w-none">
+                                <div class="page-content">
+                                    <%- page.content %>
+                                </div>
+                            </div>
+
+                            <!-- Page Actions -->
+                            <div class="mt-12 pt-8 border-t border-gray-200">
+                                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                                    <a href="/" class="inline-flex items-center text-blue-600 hover:text-blue-700 font-semibold">
+                                        <i class="fas fa-arrow-left mr-2"></i>
+                                        Ana Sayfaya Dön
+                                    </a>
+                                    <div class="flex items-center space-x-4">
+                                        <button id="printPageBtn" class="flex items-center space-x-2 text-gray-500 hover:text-gray-700 transition-colors duration-200">
+                                            <i class="fas fa-print"></i>
+                                            <span class="text-sm">Yazdır</span>
+                                        </button>
+                                        <button id="sharePageBtn" class="flex items-center space-x-2 text-gray-500 hover:text-blue-500 transition-colors duration-200">
+                                            <i class="fas fa-share"></i>
+                                            <span class="text-sm">Paylaş</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="lg:col-span-1">
+                    <div class="space-y-8">
+                        <!-- Quick Navigation -->
+                        <% if (pages && pages.length > 1) { %>
+                        <div class="bg-white rounded-xl p-6 shadow-sm">
+                            <h3 class="text-lg font-bold text-gray-900 mb-4">Diğer Sayfalar</h3>
+                            <div class="space-y-2">
+                                <% pages.filter(p => p.slug !== page.slug).forEach(p => { %>
+                                <a href="/page/<%= p.slug %>" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200 group">
+                                    <div class="w-8 h-8 bg-blue-100 group-hover:bg-blue-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-file-alt text-blue-600 text-sm"></i>
+                                    </div>
+                                    <span class="text-gray-700 group-hover:text-blue-600 text-sm font-medium">
+                                        <%= p.title %>
+                                    </span>
+                                </a>
+                                <% }); %>
+                            </div>
+                        </div>
+                        <% } %>
+
+                        <!-- Contact Info -->
+                        <div class="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl p-6 text-white">
+                            <h3 class="text-lg font-bold mb-4">İletişime Geçin</h3>
+                            <p class="text-blue-100 mb-4 text-sm">
+                                Sorularınız için bizimle iletişime geçebilirsiniz.
+                            </p>
+                            <div class="space-y-3">
+                                <a href="mailto:info@<%= siteName.toLowerCase() %>.com" class="flex items-center text-blue-100 hover:text-white transition-colors duration-200">
+                                    <i class="fas fa-envelope mr-3"></i>
+                                    <span class="text-sm">info@<%= siteName.toLowerCase() %>.com</span>
+                                </a>
+                                <div class="flex items-center text-blue-100">
+                                    <i class="fas fa-phone mr-3"></i>
+                                    <span class="text-sm">+90 XXX XXX XX XX</span>
+                                </div>
+                                <div class="flex items-center text-blue-100">
+                                    <i class="fas fa-clock mr-3"></i>
+                                    <span class="text-sm">9:00 - 18:00</span>
+                                </div>
+                            </div>
+                            <a href="mailto:info@<%= siteName.toLowerCase() %>.com" class="block w-full bg-white text-blue-600 text-center py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200 mt-4">
+                                E-posta Gönder
+                            </a>
+                        </div>
+
+                        <!-- Services Overview -->
+                        <div class="bg-white rounded-xl p-6 shadow-sm">
+                            <h3 class="text-lg font-bold text-gray-900 mb-4">Hizmetlerimiz</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-laptop-code text-blue-600 text-sm"></i>
+                                    </div>
+                                    <span class="text-gray-700 text-sm">Web Development</span>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-mobile-alt text-blue-600 text-sm"></i>
+                                    </div>
+                                    <span class="text-gray-700 text-sm">Responsive Design</span>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-rocket text-blue-600 text-sm"></i>
+                                    </div>
+                                    <span class="text-gray-700 text-sm">Performans Optimizasyonu</span>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-shield-alt text-blue-600 text-sm"></i>
+                                    </div>
+                                    <span class="text-gray-700 text-sm">Güvenlik</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Blog Posts -->
+                        <div class="bg-white rounded-xl p-6 shadow-sm">
+                            <h3 class="text-lg font-bold text-gray-900 mb-4">Son Blog Yazıları</h3>
+                            <div class="space-y-4">
+                                <!-- Placeholder for blog posts -->
+                                <a href="/blog" class="block p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                                    <h4 class="text-sm font-medium text-gray-900 mb-1">Modern Web Geliştirme</h4>
+                                    <p class="text-xs text-gray-500">2 gün önce</p>
+                                </a>
+                                <a href="/blog" class="block p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                                    <h4 class="text-sm font-medium text-gray-900 mb-1">JavaScript İpuçları</h4>
+                                    <p class="text-xs text-gray-500">5 gün önce</p>
+                                </a>
+                                <a href="/blog" class="block p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                                    <h4 class="text-sm font-medium text-gray-900 mb-1">React Best Practices</h4>
+                                    <p class="text-xs text-gray-500">1 hafta önce</p>
+                                </a>
+                            </div>
+                            <a href="/blog" class="block w-full text-center py-2 text-blue-600 hover:text-blue-700 font-semibold text-sm mt-4">
+                                Tüm Yazıları Görüntüle
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="lg:col-span-2">
+                    <h3 class="text-2xl font-bold mb-4"><%= siteName %></h3>
+                    <p class="text-gray-300 mb-6 max-w-md">
+                        Modern web teknolojileri ile işinizi dijitale taşıyoruz.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center hover:bg-blue-700 transition-colors duration-200">
+                            <i class="fab fa-twitter text-white"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center hover:bg-blue-700 transition-colors duration-200">
+                            <i class="fab fa-linkedin text-white"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center hover:bg-blue-700 transition-colors duration-200">
+                            <i class="fab fa-github text-white"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Hızlı Linkler</h4>
+                    <div class="space-y-2">
+                        <a href="/" class="text-gray-300 hover:text-white transition-colors duration-200 block">Ana Sayfa</a>
+                        <a href="/blog" class="text-gray-300 hover:text-white transition-colors duration-200 block">Blog</a>
+                        <% if (typeof pages !== 'undefined' && pages.length > 0) { %>
+                            <% pages.slice(0, 3).forEach(p => { %>
+                                <a href="/page/<%= p.slug %>" class="text-gray-300 hover:text-white transition-colors duration-200 block">
+                                    <%= p.title %>
+                                </a>
+                            <% }); %>
+                        <% } %>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">İletişim</h4>
+                    <div class="space-y-2 text-gray-300">
+                        <p><i class="fas fa-envelope mr-2"></i>info@<%= siteName.toLowerCase() %>.com</p>
+                        <p><i class="fas fa-phone mr-2"></i>+90 XXX XXX XX XX</p>
+                        <p><i class="fas fa-clock mr-2"></i>Pazartesi - Cumartesi, 9:00 - 18:00</p>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
+                <p>&copy; <%= new Date().getFullYear() %> <%= siteName %>. Tüm hakları saklıdır.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const printBtn = document.getElementById('printPageBtn');
+            const shareBtn = document.getElementById('sharePageBtn');
+            
+            if (printBtn) {
+                printBtn.addEventListener('click', function() {
+                    window.print();
+                });
+            }
+            
+            if (shareBtn) {
+                shareBtn.addEventListener('click', function() {
+                    if (navigator.share) {
+                        navigator.share({
+                            title: '<%= page.title %>',
+                            url: window.location.href
+                        });
+                    } else {
+                        navigator.clipboard.writeText(window.location.href).then(() => {
+                            alert('Link kopyalandı!');
+                        });
+                    }
+                });
+            }
+        });
+    </script>
+
+    <style>
+        .page-content {
+            line-height: 1.8;
+        }
+
+        .page-content h1, .page-content h2, .page-content h3, .page-content h4, .page-content h5, .page-content h6 {
+            color: #1f2937;
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .page-content h1 { font-size: 2.25rem; }
+        .page-content h2 { font-size: 1.875rem; }
+        .page-content h3 { font-size: 1.5rem; }
+        .page-content h4 { font-size: 1.25rem; }
+
+        .page-content p {
+            margin-bottom: 1.5rem;
+            color: #374151;
+        }
+
+        .page-content a {
+            color: #2563eb;
+            text-decoration: underline;
+        }
+
+        .page-content a:hover {
+            color: #1d4ed8;
+        }
+
+        .page-content ul, .page-content ol {
+            margin-bottom: 1.5rem;
+            padding-left: 2rem;
+        }
+
+        .page-content li {
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+
+        .page-content blockquote {
+            border-left: 4px solid #2563eb;
+            padding-left: 1.5rem;
+            margin: 2rem 0;
+            font-style: italic;
+            color: #6b7280;
+            background-color: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+        }
+
+        .page-content code {
+            background-color: #f3f4f6;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+
+        .page-content pre {
+            background-color: #1f2937;
+            color: #f9fafb;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+
+        .page-content pre code {
+            background-color: transparent;
+            padding: 0;
+            color: inherit;
+        }
+
+        .page-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .page-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        .page-content th, .page-content td {
+            border: 1px solid #d1d5db;
+            padding: 0.75rem;
+            text-align: left;
+        }
+
+        .page-content th {
+            background-color: #f9fafb;
+            font-weight: 600;
+        }
+
+        @media print {
+            nav, footer, .sidebar, button {
+                display: none !important;
+            }
+            body {
+                margin: 0;
+                padding: 20px;
+                background: white;
+            }
+            .lg\\:col-span-3 {
+                grid-column: span 4 !important;
+            }
+        }
+    </style>
+</body>
+</html>

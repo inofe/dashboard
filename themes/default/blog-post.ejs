@@ -7,7 +7,7 @@
     <% if (post.meta_title) { %><meta name="title" content="<%= post.meta_title %>"><% } %>
     <% if (post.meta_description) { %><meta name="description" content="<%= post.meta_description %>"><% } %>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"><%- faviconHTML %>
 </head>
 <body class="bg-gray-50">
     <%- include('partials/public-header', { currentPage: 'blog-post', siteName: siteName, pages: pages }) %>

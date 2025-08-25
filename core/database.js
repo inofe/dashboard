@@ -602,6 +602,24 @@ const deleteMediaFile = (id) => {
     });
 };
 
+// Slug uniqueness check
+const checkSlugExists = (table, slug, excludeId = null) => {
+    return new Promise((resolve, reject) => {
+        let query = `SELECT COUNT(*) as count FROM ${table} WHERE slug = ?`;
+        let params = [slug];
+        
+        if (excludeId) {
+            query += ' AND id != ?';
+            params.push(excludeId);
+        }
+        
+        db.get(query, params, (err, row) => {
+            if (err) reject(err);
+            else resolve(row.count > 0);
+        });
+    });
+};
+
 // Initialize new settings system
 const settingsAPI = require('./settings');
 settingsAPI.initSettingsDB(db);
@@ -648,5 +666,7 @@ module.exports = {
     saveMediaFile,
     getAllMediaFiles,
     getMediaFileById,
-    deleteMediaFile
+    deleteMediaFile,
+    // Slug utilities
+    checkSlugExists
 };

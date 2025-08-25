@@ -13,12 +13,27 @@
                     <a href="/dashboard/change-password" class="<%= currentPage === 'change-password' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-600 hover:text-gray-900' %> px-3 py-2 rounded-md text-sm font-medium">
                         <i class="fas fa-key mr-2"></i>Şifre Değiştir
                     </a>
+                    <% 
+                    // CMS her zaman aktif (sistem gereksinimi)
+                    const cmsEnabled = true;
+                    const proposalsEnabled = typeof enabledModules !== 'undefined' ? enabledModules.includes('proposals') : true;
+                    %>
+                    
+                    <% if (cmsEnabled) { %>
                     <a href="/dashboard/cms" class="<%= currentPage === 'cms' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-600 hover:text-gray-900' %> px-3 py-2 rounded-md text-sm font-medium">
                         <i class="fas fa-edit mr-2"></i>CMS
                     </a>
+                    <% } %>
+                    
+                    <% if (proposalsEnabled) { %>
                     <a href="/dashboard/proposals" class="<%= currentPage === 'proposals' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-600 hover:text-gray-900' %> px-3 py-2 rounded-md text-sm font-medium">
                         <i class="fas fa-file-alt mr-2"></i>Teklifler
                     </a>
+                    <% } else { %>
+                    <span class="text-gray-400 px-3 py-2 rounded-md text-sm font-medium cursor-not-allowed" title="Bu modül devre dışı">
+                        <i class="fas fa-file-alt mr-2"></i>Teklifler
+                    </span>
+                    <% } %>
                     <a href="/dashboard/settings" class="<%= currentPage === 'settings' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-600 hover:text-gray-900' %> px-3 py-2 rounded-md text-sm font-medium">
                         <i class="fas fa-cog mr-2"></i>Ayarlar
                     </a>

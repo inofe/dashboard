@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sayfa Bulunamadı - 404</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"><%- faviconHTML %>
+    <style>
+        .error-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        .error-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 3rem;
+        }
+        .error-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 2rem;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+        }
+        .error-code {
+            font-size: 6rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+        .btn-cta {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .btn-cta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+        .btn-secondary {
+            background: rgba(108, 117, 125, 0.1);
+            border: 2px solid #6c757d;
+            color: #6c757d;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .btn-secondary:hover {
+            background: #6c757d;
+            color: white;
+            transform: translateY(-2px);
+        }
+        .floating-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .floating-elements::before,
+        .floating-elements::after {
+            content: '';
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .floating-elements::before {
+            top: 20%;
+            left: 10%;
+            animation: float 6s ease-in-out infinite;
+        }
+        .floating-elements::after {
+            bottom: 20%;
+            right: 10%;
+            animation: float 8s ease-in-out infinite reverse;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+    </style>
+</head>
+<body>
+    <section class="error-section">
+        <div class="floating-elements"></div>
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6 col-md-8">
+                    <div class="error-card text-center">
+                        <div class="error-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        
+                        <div class="error-code mb-3">
+                            404
+                        </div>
+                        
+                        <h2 class="h1 fw-bold text-dark mb-4">
+                            Sayfa Bulunamadı
+                        </h2>
+                        
+                        <p class="text-muted fs-5 mb-5">
+                            Aradığınız sayfa mevcut değil, taşınmış veya silinmiş olabilir.
+                            Ana sayfaya dönebilir veya bir önceki sayfaya geri dönebilirsiniz.
+                        </p>
+                        
+                        <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                            <a href="/" class="btn btn-cta">
+                                <i class="fas fa-home me-2"></i>
+                                Ana Sayfa
+                            </a>
+                            <button id="back-button" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Geri Dön
+                            </button>
+                        </div>
+                        
+                        <div class="mt-4 pt-4 border-top">
+                            <p class="text-muted small mb-0">
+                                <i class="fas fa-question-circle me-1"></i>
+                                Yardıma mı ihtiyacınız var? 
+                                <a href="/page/iletisim" class="text-decoration-none">İletişime geçin</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const backButton = document.getElementById('back-button');
+            if (backButton) {
+                backButton.addEventListener('click', function() {
+                    history.back();
+                });
+            }
+        });
+    </script>
+</body>
+</html>
