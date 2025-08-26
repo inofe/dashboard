@@ -2,7 +2,7 @@
 
 ## 📋 Proje Özeti
 
-Bu proje, **iş teklifleri** ve **içerik yönetimi** için geliştirilmiş modern bir dashboard sistemidir. Modüler yapısı sayesinde kolayca genişletilebilir ve farklı temalarla özelleştirilebilir.
+Bu proje, **iş teklifleri** ve **içerik yönetimi** için geliştirilmiş modern bir dashboard sistemidir. Modüler yapısı, dinamik tema sistemi ve kapsamlı güvenlik özellikleriyle production-ready bir platform sunar.
 
 ## 🎯 Ana Özellikler
 
@@ -13,22 +13,24 @@ Bu proje, **iş teklifleri** ve **içerik yönetimi** için geliştirilmiş mode
 - Aktif/pasif teklif durumu yönetimi
 
 ### 📝 İçerik Yönetimi (CMS)
-- **Blog sistemi**: Yazı oluşturma, düzenleme, yayınlama
-- **Sayfa yönetimi**: Statik sayfalar (Hakkımızda, İletişim vb.)
-- **Medya kütüphanesi**: Dosya yükleme ve yönetimi
+- **Blog sistemi**: ✨ TinyMCE WYSIWYG editör ile yazı oluşturma, düzenleme, yayınlama
+- **Sayfa yönetimi**: Rich text editör ile statik sayfalar (Hakkımızda, İletişim vb.)
+- **Medya kütüphanesi**: 🎥 Çoklu medya desteği (resim, video, ses, döküman, 50MB)
+- **Güvenlik**: DOMPurify ile HTML sanitization, XSS koruması
 - **SEO desteği**: Meta taglar ve arama motoru optimizasyonu
 
 ### 🎨 Tema Sistemi
-- **2 hazır tema**: Default (Tailwind CSS) ve Modern (Bootstrap 5)
-- **Dashboard üzerinden tema değiştirme**
-- **Responsive tasarım** - mobil uyumlu
-- **Yeni tema geliştirme** desteği
+- **Çoklu tema desteği**: Default (Tailwind), Modern (Bootstrap 5), özel temalar
+- **Runtime tema değişimi**: Dashboard'dan canlı tema seçimi
+- **Favicon sistemi**: Otomatik favicon entegrasyonu
+- **404 sayfaları**: Tema-uyumlu hata sayfaları
+- **SEO optimizasyonu**: Meta tags, structured data, performans
 
 ### 🔧 Sistem Yönetimi
-- **Modüler yapı**: Yeni modüller eklenebilir
-- **Güvenlik**: Rate limiting, CSP, bcrypt şifreleme
-- **Ayarlar**: Kategorize edilmiş sistem ayarları
-- **Dosya yönetimi**: Güvenli upload sistemi
+- **Dinamik modül sistemi**: Hot-load/unload, dependency management
+- **Kapsamlı güvenlik**: CSP, rate limiting, input validation, CSRF
+- **Gelişmiş ayarlar**: Kategorize settings, module control
+- **Upload sistemi**: Multi-file, validation, favicon/logo desteği
 
 ## 🏗️ Teknoloji Yapısı
 
@@ -44,25 +46,54 @@ Bu proje, **iş teklifleri** ve **içerik yönetimi** için geliştirilmiş mode
 - **Vanilla JavaScript** + AJAX
 - **Font Awesome** iconlar
 
-## 📁 Proje Yapısı
+## 🏗️ Sistem Mimarisi ve Klasör İlişkileri
+
+### 📁 Ana Yapı ve Bağımlılık Akışı
 
 ```
 dashboard/
-├── core/                 # Temel sistem
-│   ├── auth.js          # Kimlik doğrulama
-│   ├── database.js      # Veritabanı işlemleri
-│   ├── theme.js         # Tema sistemi
-│   └── security.js      # Güvenlik katmanı
-├── modules/             # Modüller
-│   ├── proposals/       # Teklif modülü
-│   └── cms/            # İçerik modülü
-├── themes/             # Tema dosyaları
-│   ├── default/        # Tailwind tema
-│   └── modern/         # Bootstrap tema
-├── routes/             # Yönlendirmeler
-├── views/              # Ana şablonlar
-└── uploads/            # Yüklenen dosyalar
+├── app/                 # Bootstrap sistemi → core/* → modules/* → routes/*
+├── core/                # Temel sistem katmanı → tüm diğer katmanlar
+├── modules/             # İş mantığı katmanı → core/* ↔ routes/* ↔ views/*
+├── routes/              # HTTP katmanı → core/* → modules/* → views/*
+├── themes/              # Görsel katman → core/theme.js ↔ routes/public.js
+├── views/               # Template katmanı → routes/dashboard.js
+├── data/                # Veri katmanı → core/database.js
+└── uploads/             # Dosya katmanı → routes/* → core/security.js
 ```
+
+### 🔄 Sistem Akış Zincirleri
+
+#### 1. **Başlangıç Akışı**
+```
+server.js → app/bootstrap.js → core/setup.js → core/database.js → core/module-loader.js
+```
+
+#### 2. **HTTP Request Akışı**  
+```
+routes/* → core/auth.js → core/security.js → modules/* → themes/* → response
+```
+
+#### 3. **Modül Yaşam Döngüsü**
+```
+core/module-loader.js ↔ core/settings.js ↔ modules/*/routes.js ↔ routes/dashboard.js
+```
+
+#### 4. **Tema Render Akışı**
+```
+routes/public.js → core/theme.js → themes/*/template.ejs → response
+```
+
+### 📊 Katmanlar Arası İletişim
+
+| Katman | Bağımlı Olduğu | Bağımlı Olan | Ana İşlev |
+|--------|----------------|--------------|-----------|
+| **app/** | core/* | server.js | Sistem başlatma ve orkestrasyon |
+| **core/** | - | tüm katmanlar | Temel sistem servisleri |
+| **modules/** | core/* | routes/*, views/* | İş mantığı ve özellikler |
+| **routes/** | core/*, modules/* | views/*, themes/* | HTTP endpoint yönetimi |
+| **themes/** | core/theme.js | routes/public.js | Public görünüm katmanı |
+| **views/** | core/* | routes/dashboard.js | Admin template katmanı |
 
 ## 🚀 Kurulum ve Çalıştırma
 
@@ -103,37 +134,40 @@ PORT=8080 EXTERNAL_PORT=8080 docker-compose up -d
 ✅ **Küçük işletmeler** - Kurumsal web sitesi yönetimi
 ✅ **Freelancerlar** - Portföy ve teklif sunumu
 
-## 🔒 Güvenlik Özellikleri
+## 🔒 Güvenlik ve Performans
 
-- **Şifre şifreleme** (bcrypt)
-- **Oturum yönetimi** (express-session)
-- **Rate limiting** - DDoS koruması
-- **Dosya doğrulama** - Güvenli upload
-- **CSP başlıkları** - XSS koruması
-- **Input sanitization** - SQL injection koruması
+### Güvenlik Katmanları (core/security.js)
+- **Multi-layered Authentication**: bcrypt + session management
+- **Request Protection**: Rate limiting, CSRF tokens, input validation
+- **Content Security**: CSP headers, DOMPurify HTML sanitization, XSS prevention
+- **File Security**: MIME type validation, uzantı kontrolü, boyut sınırı
+- **Database Security**: Prepared statements, SQL injection prevention
 
-## 🎨 Tema Geliştirme
+### Performance Optimizations
+- **Template Caching**: EJS cache + custom cache layer
+- **Asset Optimization**: CDN integration, compression, lazy loading
+- **Database Performance**: Query optimization, connection pooling
+- **Module System**: Dynamic loading, memory management
 
-Yeni tema oluşturmak için:
+## 🛠️ Geliştirme Rehberleri
 
-1. `themes/yeni-tema/` klasörü oluştur
-2. Gerekli template dosyalarını ekle (home.ejs, blog.ejs vb.)
-3. `themes/README.md` dosyasındaki rehberi takip et
-4. Dashboard > Ayarlar > Tema sekmesinden aktifleştir
+### 🎨 Tema Geliştirme (themes/README.md)
+- **Çoklu CSS Framework**: Tailwind, Bootstrap, Bulma, custom
+- **Advanced Features**: Dark mode, responsive, SEO, analytics
+- **Development Tools**: Live reload, debugging, testing
+- **Template System**: EJS, partials, favicon injection, 404 pages
 
-## 📈 Genişletme
+### 📦 Modül Geliştirme (modules/README.md) 
+- **Modular Architecture**: Independent, hot-loadable modules
+- **Configuration**: module.json, route definitions, permissions
+- **Lifecycle Management**: Discovery, loading, runtime, unloading
+- **Integration**: Menu items, settings, database tables
 
-### Yeni Modül Ekleme:
-1. `modules/yeni-modul/` klasörü oluştur
-2. `module.json` config dosyası ekle
-3. `routes.js` ve view dosyalarını oluştur
-4. Dashboard'dan modülü aktifleştir
-
-### Desteklenen Modül Özellikleri:
-- Otomatik route kayıt
-- Menu entegrasyonu  
-- Settings sistemi
-- Enable/disable durumu
+### 🔧 Sistem Entegrasyonu
+- **Core Services** (core/README.md): Auth, database, theme, security
+- **Route Management** (routes/README.md): Dashboard, public, file uploads
+- **Template System** (views/README.md): EJS patterns, partials, optimization
+- **Bootstrap System** (app/README.md): Startup, middleware, error handling
 
 ## 🔧 Teknik Detaylar
 
@@ -153,17 +187,82 @@ Yeni tema oluşturmak için:
 - **Auto Restart**: Container otomatik yeniden başlatma
 - **Multi-Environment**: development/production desteği
 
-## 🌟 Gelecek Özellikler
+## 📚 Dokümantasyon Sistemi
 
-Bu sistem mevcut haliyle production-ready olup, ihtiyaç halinde şu özellikler eklenebilir:
+### README Organizasyonu
+- **CLAUDE.md** (bu dosya): Ana proje yönetimi, sistem ilişkileri, genel rehber
+- **Klasör-spesifik README'ler**: Detaylı teknik dokümantasyon, kod örnekleri
+- **Cross-reference**: Her README birbirine atıfta bulunur
+- **.claude/**: AI assistance workflow talimatları ve proje-özel system prompt'lar
 
-- **Email bildirim sistemi**
-- **Çoklu kullanıcı desteği**
-- **API endpoints** (REST/GraphQL)
-- **Dashboard analytics**
-- **Backup/restore sistemi**
-- **Multi-language support**
+### Dokümantasyon Katmanları
+1. **Yönetim Katmanı**: CLAUDE.md → sistem overview, ilişkiler
+2. **Teknik Katman**: */README.md → implementation details, API docs  
+3. **Kullanıcı Katmanı**: Dashboard UI → kullanıcı rehberleri
+4. **AI Assistance Katmanı**: .claude/* → development workflow, standards
+
+## 🚀 Roadmap ve Genişletme
+
+### Mevcut Durum (v1.0)
+- ✅ **Full-stack Dashboard**: Production-ready
+- ✅ **Module System**: Dynamic loading
+- ✅ **Theme System**: Multi-theme support  
+- ✅ **Security**: Enterprise-grade
+- ✅ **Documentation**: Comprehensive
+
+### Gelecek Hedefler
+- 📧 **Notification System**: Email, SMS, push notifications
+- 👥 **Multi-user**: Role-based access control
+- 🔌 **API Layer**: REST/GraphQL endpoints
+- 📊 **Analytics**: Dashboard metrics, user tracking
+- 🌍 **Internationalization**: Multi-language support
 
 ---
 
-**Not**: Bu proje modüler yapısı sayesinde kolayca genişletilebilir ve özelleştirilebilir. Her modül bağımsız çalışır ve sistem bütünlüğünü bozmadan eklenip çıkarılabilir.
+## 🤖 Yeni Konuşma - Proje Tanıma Rehberi
+
+### **📚 Öncelik Sıralaması:**
+
+#### 1. **🎯 CLAUDE.md** (İLK ÖNCE - BU DOSYA)
+- ✅ Ana proje özeti ve genel bakış
+- ✅ Sistem mimarisi ve klasörler arası ilişkiler  
+- ✅ Teknoloji stack'i ve temel özellikler
+
+#### 2. **🤖 .claude/system-prompt.md** (İKİNCİ)
+- ✅ Çalışma akışı kuralları (4 aşama)
+- ✅ Dokümantasyon yaklaşımı
+- ✅ Proje-özel standartlar
+
+#### 3. **📁 İlgili Klasör README'leri** (GÖREV BAZINDA)
+- **core/README.md** → Temel sistem komponenleri
+- **modules/README.md** → Modül geliştirme
+- **themes/README.md** → Tema sistemi
+- **routes/README.md** → HTTP endpoint'leri
+- **views/README.md** → Template sistemi
+- **app/README.md** → Bootstrap sistemi
+
+### **🔄 Okuma Stratejisi:**
+
+#### **Genel Proje Anlayışı için:**
+```
+1. CLAUDE.md (bu dosya) → Proje nedir, nasıl çalışır?
+2. .claude/system-prompt.md → Nasıl çalışmalıyım?
+3. İlgili README → Spesifik detaylar
+```
+
+#### **Spesifik Task için:**
+```
+1. .claude/system-prompt.md → Çalışma akışını hatırla
+2. CLAUDE.md → Sistem ilişkilerini kontrol et
+3. İlgili klasör README → Teknik detayları öğren
+```
+
+---
+
+## ⚡ Kullanıcı Hızlı Başlangıç
+
+1. **Sistem Kurulumu**: `npm install && npm start`
+2. **Admin Girişi**: http://localhost:3000/dashboard/login (admin/admin123)
+3. **Tema Yönetimi**: Dashboard > Ayarlar > Tema
+4. **Modül Kontrolü**: Dashboard > Ayarlar > Modüller  
+5. **İçerik Yönetimi**: Dashboard > İçerik Yönetimi

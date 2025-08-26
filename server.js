@@ -45,6 +45,7 @@ app.use(express.json());
 
 // Static files
 app.use('/dashboard/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/assets', express.static(path.join(__dirname, 'public/assets')));
 
 // Initialize database
 const { initDB } = require('./core/database');

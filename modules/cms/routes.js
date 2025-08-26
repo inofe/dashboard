@@ -2,8 +2,41 @@ const express = require('express');
 const path = require('path');
 const ejs = require('ejs');
 const multer = require('multer');
+const sanitizeHtml = require('sanitize-html');
 const router = express.Router();
 const { requireAuth } = require('../../core/auth');
+
+// sanitize-html konfigürasyonu
+const sanitizeOptions = {
+    allowedTags: [
+        'p', 'div', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'a', 'ul', 'ol', 'li',
+        'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'img', 'blockquote',
+        'pre', 'code', 'table', 'thead', 'tbody', 'tr', 'td', 'th', 'span'
+    ],
+    allowedAttributes: {
+        '*': ['style', 'class'],
+        'a': ['href', 'target'],
+        'img': ['src', 'alt', 'width', 'height'],
+        'table': ['border', 'cellpadding', 'cellspacing'],
+        'td': ['colspan', 'rowspan'],
+        'th': ['colspan', 'rowspan']
+    },
+    allowedStyles: {
+        '*': {
+            'color': [/^#(0x)?[0-9a-f]+$/i, /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/],
+            'text-align': [/^left$/, /^right$/, /^center$/, /^justify$/],
+            'font-weight': [/^bold$/, /^normal$/, /^\d+$/],
+            'font-style': [/^italic$/, /^normal$/],
+            'text-decoration': [/^underline$/, /^line-through$/, /^none$/],
+            'background-color': [/^#(0x)?[0-9a-f]+$/i, /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/]
+        }
+    },
+    disallowedTagsMode: 'discard',
+    allowedSchemes: ['http', 'https', 'mailto'],
+    allowedSchemesByTag: {
+        img: ['http', 'https', 'data']
+    }
+};
 
 // Multer setup for CMS media uploads
 const storage = multer.diskStorage({
@@ -16,18 +49,47 @@ const storage = multer.diskStorage({
     }
 });
 
+// Güvenli dosya türleri
+const ALLOWED_MIME_TYPES = [
+    // Resimler
+    'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
+    // Video
+    'video/mp4', 'video/webm', 'video/ogg',
+    // Audio
+    'audio/mp3', 'audio/wav', 'audio/ogg',
+    // Dökümanlar
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+];
+
+const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.mp4', '.webm', '.ogg', '.mp3', '.wav', '.pdf', '.doc', '.docx'];
+
 const upload = multer({ 
     storage: storage,
-    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+    limits: { 
+        fileSize: 50 * 1024 * 1024, // 50MB (video/ses için artırıldı)
+        files: 1 // Tek seferde 1 dosya
+    },
     fileFilter: function (req, file, cb) {
-        // Allow images and documents
-        if (file.mimetype.startsWith('image/') || 
-            file.mimetype.includes('pdf') ||
-            file.mimetype.includes('document')) {
-            cb(null, true);
-        } else {
-            cb(new Error('Desteklenen dosya türleri: resim, PDF, döküman'), false);
+        // MIME type kontrolü
+        if (!ALLOWED_MIME_TYPES.includes(file.mimetype)) {
+            return cb(new Error('Desteklenmeyen dosya türü. İzin verilen: resim, video, ses, PDF, Word'), false);
         }
+        
+        // Dosya uzantısı kontrolü
+        const ext = path.extname(file.originalname).toLowerCase();
+        if (!ALLOWED_EXTENSIONS.includes(ext)) {
+            return cb(new Error('Desteklenmeyen dosya uzantısı'), false);
+        }
+        
+        // Dosya adı güvenlik kontrolü
+        const filename = file.originalname;
+        if (!/^[a-zA-Z0-9._-]+$/.test(filename.replace(ext, ''))) {
+            return cb(new Error('Dosya adı sadece harf, rakam, nokta, tire ve alt çizgi içerebilir'), false);
+        }
+        
+        cb(null, true);
     }
 });
 
@@ -103,7 +165,12 @@ router.get('/cms/pages/create', requireAuth, async (req, res) => {
 
 router.post('/cms/pages/create', requireAuth, async (req, res) => {
     try {
-        const { title, content, meta_title, meta_description, status } = req.body;
+        let { title, content, meta_title, meta_description, status } = req.body;
+        
+        // İçeriği güvenli hale getir
+        if (content) {
+            content = sanitizeHtml(content, sanitizeOptions);
+        }
         let { slug } = req.body;
         
         // Validasyon
@@ -187,7 +254,12 @@ router.get('/cms/posts/create', requireAuth, async (req, res) => {
 
 router.post('/cms/posts/create', requireAuth, async (req, res) => {
     try {
-        const { title, content, meta_title, meta_description, status, tags } = req.body;
+        let { title, content, meta_title, meta_description, status, tags } = req.body;
+        
+        // İçeriği güvenli hale getir
+        if (content) {
+            content = sanitizeHtml(content, sanitizeOptions);
+        }
         let { slug, excerpt } = req.body;
         
         // Validasyon
@@ -331,7 +403,12 @@ router.get('/cms/pages/edit/:id', requireAuth, async (req, res) => {
 
 router.post('/cms/pages/edit/:id', requireAuth, async (req, res) => {
     try {
-        const { title, content, meta_title, meta_description, status } = req.body;
+        let { title, content, meta_title, meta_description, status } = req.body;
+        
+        // İçeriği güvenli hale getir
+        if (content) {
+            content = sanitizeHtml(content, sanitizeOptions);
+        }
         let { slug } = req.body;
         const pageId = req.params.id;
         
@@ -463,7 +540,12 @@ router.get('/cms/posts/edit/:id', requireAuth, async (req, res) => {
 
 router.post('/cms/posts/edit/:id', requireAuth, async (req, res) => {
     try {
-        const { title, content, meta_title, meta_description, tags, status } = req.body;
+        let { title, content, meta_title, meta_description, tags, status } = req.body;
+        
+        // İçeriği güvenli hale getir
+        if (content) {
+            content = sanitizeHtml(content, sanitizeOptions);
+        }
         let { slug, excerpt } = req.body;
         const postId = req.params.id;
         
