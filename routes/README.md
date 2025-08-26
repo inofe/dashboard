@@ -254,47 +254,25 @@ req.session.destroy((err) => {
 
 ### HTML Content Sanitization (v1.1 Update)
 
-**Güvenlik Güncellemesi:** TinyMCE rich text içeriği için gelişmiş HTML sanitization
+**Public Routes Güvenlik:** Merkezi sanitization sistemi ile güvenli içerik görünümü
 
 ```javascript
 // routes/public.js
-const sanitizeHtml = require('sanitize-html');
+const { sanitizeRichTextContent } = require('../core/sanitization-config');
 
-const sanitizeContentForDisplay = (content) => {
-    return sanitizeHtml(content, {
-        allowedTags: [
-            'p', 'div', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'a', 
-            'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 
-            'img', 'blockquote', 'pre', 'code', 'table', 'span'
-        ],
-        allowedAttributes: {
-            '*': ['style', 'class'],
-            'a': ['href', 'target'],
-            'img': ['src', 'alt', 'width', 'height']
-        },
-        allowedStyles: {
-            '*': {
-                'color': [/^#(0x)?[0-9a-f]+$/i, /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/],
-                'text-align': [/^left$/, /^right$/, /^center$/, /^justify$/],
-                'font-weight': [/^bold$/, /^normal$/, /^\d+$/],
-                'font-style': [/^italic$/, /^normal$/]
-            }
-        }
-    });
-};
-
-// Kullanım: Blog ve sayfa içeriği sanitization
+// Blog ve sayfa içeriği sanitization
 const sanitizedPage = {
     ...page,
-    content: sanitizeContentForDisplay(page.content)
+    content: sanitizeRichTextContent(page.content)
 };
 ```
 
 **Avantajları:**
+- ✅ **Merkezi Yönetim:** Tek konfigürasyon dosyası
 - ✅ **XSS Koruması:** Script injection engellemeleri
 - ✅ **Style Korunumu:** TinyMCE formatlamalarını korur
-- ✅ **Regex Validation:** CSS özelliklerini doğrular
-- ✅ **Flexible Whitelist:** Tag ve attribute kontrolü
+
+📋 **Sanitization konfigürasyonu:** [`core/sanitization-config.js`](../core/sanitization-config.js)
 ```
 
 ### Rate Limiting

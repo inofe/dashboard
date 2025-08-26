@@ -403,54 +403,22 @@ router.post('/create',
 
 ```javascript
 // modules/cms/routes.js
-const sanitizeHtml = require('sanitize-html');
+const { sanitizeRichTextContent } = require('../../core/sanitization-config');
 
-const sanitizeOptions = {
-    allowedTags: [
-        'p', 'div', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'a', 'ul', 'ol', 'li',
-        'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'img', 'blockquote', 'pre', 'code', 
-        'table', 'thead', 'tbody', 'tr', 'td', 'th', 'span'
-    ],
-    allowedAttributes: {
-        '*': ['style', 'class'],
-        'a': ['href', 'target'],
-        'img': ['src', 'alt', 'width', 'height']
-    },
-    allowedStyles: {
-        '*': {
-            'color': [/^#(0x)?[0-9a-f]+$/i, /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/],
-            'text-align': [/^left$/, /^right$/, /^center$/, /^justify$/],
-            'font-weight': [/^bold$/, /^normal$/, /^\d+$/],
-            'font-style': [/^italic$/, /^normal$/]
-        }
-    }
-};
-
-// Content sanitization kullanımı
+// Merkezi konfigürasyon kullanımı
 if (content) {
-    content = sanitizeHtml(content, sanitizeOptions);
+    content = sanitizeRichTextContent(content);
 }
 ```
 
-**TinyMCE Editör Konfigürasyonu:**
-```javascript
-// modules/cms/views/page-create.ejs & post-create.ejs
-tinymce.init({
-    selector: '.tinymce-editor',
-    // CSS style attribute'larını izin ver
-    valid_elements: 'p[style],div[style],strong[style],em[style]...',
-    // Güvenlik filtreleri
-    invalid_elements: 'script,object,embed,applet,iframe',
-    convert_urls: false,
-    relative_urls: false
-});
-```
-
 **Özellikler:**
+- ✅ **Merkezi Konfigürasyon:** `core/sanitization-config.js` kullanır
 - ✅ **XSS Koruması:** Script injection engellemeleri
 - ✅ **Style Preservation:** Renk ve hizalama korunumu  
-- ✅ **Regex Validation:** CSS property whitelist
 - ✅ **Format Persistence:** Admin panelinde formatlar korunur
+
+📋 **Detaylı konfigürasyon için:** [`core/README.md#html-sanitization`](../core/README.md#html-sanitization)  
+🎨 **TinyMCE ayarları için:** [`views/README.md#tinymce-integration`](../views/README.md#tinymce-integration)
 
 ### 3. File Upload Security
 ```javascript

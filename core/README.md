@@ -150,23 +150,56 @@ sanitizeBody       // Request body sanitization
 - 📁 **File Security**: MIME type, uzantı, boyut kontrolleri
 - 🎨 **TinyMCE Integration**: Rich text editor formatlamayı koruma
 
-**v1.1 Sanitization Update:**
-```javascript
-// routes/public.js - Enhanced sanitization
-const sanitizeHtml = require('sanitize-html');
+## 🧼 HTML Sanitization System (v1.1)
 
-const sanitizeContentForDisplay = (content) => {
-    return sanitizeHtml(content, {
-        allowedTags: ['p', 'div', 'strong', 'span', 'h1', 'h2', 'h3'...],
-        allowedStyles: {
-            '*': {
-                'color': [/^#[0-9a-f]+$/i, /^rgb\(/],
-                'text-align': [/^(left|right|center|justify)$/]
-            }
-        }
-    });
+**Merkezi HTML Sanitization:** `core/sanitization-config.js`
+
+Proje genelinde güvenli HTML işleme için merkezi konfigürasyon sistemi.
+
+### Kullanım Örnekleri
+
+#### CMS Modülleri
+```javascript
+// modules/cms/routes.js
+const { sanitizeRichTextContent } = require('../../core/sanitization-config');
+
+if (content) {
+    content = sanitizeRichTextContent(content);
+}
+```
+
+#### Public Routes  
+```javascript
+// routes/public.js
+const { sanitizeRichTextContent } = require('../core/sanitization-config');
+
+const sanitizedPage = {
+    ...page,
+    content: sanitizeRichTextContent(page.content)
 };
 ```
+
+#### TinyMCE Integration
+```javascript
+// modules/cms/views/*.ejs
+const { TINYMCE_VALID_ELEMENTS } = require('../../../../core/sanitization-config');
+
+tinymce.init({
+    valid_elements: TINYMCE_VALID_ELEMENTS
+});
+```
+
+### API Functions
+
+- `sanitizeRichTextContent(content)` - Rich text sanitization
+- `sanitizeSimpleText(text)` - Simple text cleaning
+- `RICH_TEXT_SANITIZE_OPTIONS` - Sanitization config object
+- `TINYMCE_VALID_ELEMENTS` - TinyMCE valid elements string
+
+**Cross-References:**
+- 📦 **Modules:** [`modules/README.md#tinymce-sanitization`](../modules/README.md#tinymce-sanitization)
+- 🌐 **Routes:** [`routes/README.md#html-content-sanitization`](../routes/README.md#html-content-sanitization)
+- 🎨 **Views:** [`views/README.md#tinymce-integration`](../views/README.md#tinymce-integration)
 
 ### settings.js - Ayar Yönetimi
 

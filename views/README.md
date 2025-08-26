@@ -210,7 +210,7 @@ Modül view'larında (CMS pages/posts) TinyMCE entegrasyonu için güvenlik konf
 **`modules/cms/views/page-create.ejs` & `post-create.ejs`:**
 
 ```javascript
-// TinyMCE Güvenlik Konfigürasyonu
+// TinyMCE Konfigürasyon - Merkezi sistem kullanımı
 tinymce.init({
     selector: '.tinymce-editor',
     height: 400,
@@ -218,8 +218,8 @@ tinymce.init({
     plugins: ['advlist', 'autolink', 'lists', 'link', 'image', 'charmap'...],
     toolbar: 'undo redo | blocks | bold italic forecolor | alignleft aligncenter alignright alignjustify...',
     
-    // ✅ GÜNCEL: Style attribute desteği (v1.1)
-    valid_elements: 'p[style],div[style],br,strong[style],em[style],u[style],s[style],a[href|target|style],ul[style],ol[style],li[style],h1[style],h2[style],h3[style],h4[style],h5[style],h6[style],img[src|alt|width|height|style],blockquote[style],pre[style],code[style],table[style],thead[style],tbody[style],tr[style],td[style],th[style],span[style]',
+    // ✅ Merkezi konfigürasyondan valid_elements kullanır
+    valid_elements: /* core/sanitization-config.js TINYMCE_VALID_ELEMENTS */,
     
     // Güvenlik filtreleri
     invalid_elements: 'script,object,embed,applet,iframe,form,input,textarea,button,select,option',
@@ -228,6 +228,8 @@ tinymce.init({
     document_base_url: window.location.origin
 });
 ```
+
+📋 **Merkezi konfigürasyon:** [`core/sanitization-config.js`](../../core/sanitization-config.js)
 
 **Önceki Durum (❌):**
 ```javascript
