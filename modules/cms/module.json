@@ -5,6 +5,65 @@
   "version": "1.0.0",
   "core": true,
   "category": "content",
+  "dashboardRoutes": {
+    "/cms": {
+      "method": "GET",
+      "handler": "routes.js",
+      "description": "CMS ana sayfa"
+    },
+    "/cms/pages": {
+      "method": ["GET", "POST"],
+      "handler": "routes.js",
+      "description": "Sayfa yönetimi"
+    },
+    "/cms/pages/create": {
+      "method": ["GET", "POST"],
+      "handler": "routes.js",
+      "description": "Yeni sayfa oluştur"
+    },
+    "/cms/pages/edit/:id": {
+      "method": ["GET", "POST"],
+      "handler": "routes.js",
+      "description": "Sayfa düzenle"
+    },
+    "/cms/posts": {
+      "method": ["GET", "POST"],
+      "handler": "routes.js",
+      "description": "Blog yazı yönetimi"
+    },
+    "/cms/posts/create": {
+      "method": ["GET", "POST"],
+      "handler": "routes.js",
+      "description": "Yeni blog yazısı"
+    },
+    "/cms/media": {
+      "method": ["GET", "POST"],
+      "handler": "routes.js",
+      "description": "Medya library"
+    }
+  },
+  "publicRoutes": {
+    "/": {
+      "method": "GET",
+      "handler": "routes.js",
+      "description": "Ana sayfa - blog yazıları ve sayfalar"
+    },
+    "/blog": {
+      "method": "GET", 
+      "handler": "routes.js",
+      "description": "Blog ana sayfası"
+    },
+    "/blog/:slug": {
+      "method": "GET",
+      "handler": "routes.js", 
+      "description": "Blog yazısı detay"
+    },
+    "/page/:slug": {
+      "method": "GET",
+      "handler": "routes.js",
+      "description": "Sayfa detay"
+    }
+  },
   "routes": {
     "/cms": {
       "method": "GET",

@@ -97,21 +97,34 @@ getActiveTheme() → Promise<string>
 getAvailableThemes() → Array<string>
 ```
 
-### module-loader.js - Modül Sistemi
+### module-loader.js - Modül Sistemi ⚡ v2.0 - Modüler Public Routes
 
-**Amaç:** Dinamik modül yükleme ve yönetimi
+**Amaç:** Dashboard ve Public route'ları için dinamik modül yükleme sistemi
+
+**🔥 Yeni Özellikler (v2.0):**
+- ✅ **Dual Router Support**: Dashboard ve Public route'ları ayrı ayrı yönetir
+- 🌐 **Public Route Module**: Modüller artık public endpoint'leri de barındırabilir
+- 🎯 **Route Type Separation**: Dashboard vs Public route'lar ayrı sistemler
+- 🔀 **Smart Loading**: Route type'a göre farklı yükleme stratejileri
 
 **Modül Yaşam Döngüsü:**
 1. 📦 **Scan** - modules/ dizinini tara
 2. 🔍 **Discover** - module.json dosyalarını oku  
-3. ✅ **Validate** - Konfigürasyonu doğrula
-4. 🚀 **Load** - Route'ları kaydet
-5. 📊 **Status** - Durumu raporla
+3. ✅ **Validate** - Dashboard/Public konfigürasyonlarını doğrula
+4. 🚀 **Load Dashboard** - Dashboard route'larını kaydet
+5. 🌐 **Load Public** - Public route'larını kaydet
+6. 📊 **Status** - Durumu raporla
 
-**API:**
+**API v2.0:**
 ```javascript
-// Modül yükleme
-loadEnabledModules(router) → Promise<results[]>
+// Dashboard modül yükleme
+loadAllModules(router, 'dashboard') → Promise<results[]>
+
+// Public modül yükleme  
+loadPublicModules(router) → Promise<results[]>
+
+// Route type'a göre yükleme
+loadModuleRoutes(moduleName, router, routeType) → Promise<boolean>
 
 // Durum sorgulama  
 getModuleStatus() → Promise<object>
@@ -119,6 +132,36 @@ getModuleStatus() → Promise<object>
 // Menu entegrasyonu
 getModuleMenuItems() → Promise<items[]>
 ```
+
+**Route Type Desteği:**
+```javascript
+// Dashboard routes (auth gerekli)
+modules/cms/routes.js → dashboardRouter
+modules/proposals/routes.js → dashboardRouter
+
+// Public routes (auth yok)
+modules/cms/routes.js → publicRouter  
+modules/proposals/routes.js → publicRouter
+```
+
+**Module JSON Yapısı v2.0:**
+```json
+{
+  "dashboardRoutes": {
+    "/cms": {...},
+    "/cms/pages": {...}
+  },
+  "publicRoutes": {
+    "/": {...},
+    "/blog": {...},
+    "/page/:slug": {...}
+  }
+}
+```
+
+**Module Guard System:**
+- **Dashboard Routes**: Devre dışı modüllerde `/dashboard?error=module_disabled`
+- **Public Routes**: Devre dışı modüllerde `404 Not Found`
 
 ### security.js - Güvenlik Katmanı
 

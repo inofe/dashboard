@@ -19,24 +19,42 @@ const setupDashboardModule = async (app) => {
         const coreRoutes = require('../routes/dashboard');
         dashboardRoutes.use('/', coreRoutes);
         
-        // Modül sistemi - Dinamik modül yükleme
-        console.log('📦 Modüller yükleniyor...');
-        const loadResults = await moduleLoader.loadEnabledModules(dashboardRoutes);
+        // Modül sistemi - Dashboard routes
+        console.log('📦 Dashboard modülleri yükleniyor...');
+        const dashboardLoadResults = await moduleLoader.loadAllModules(dashboardRoutes, 'dashboard');
+        
+        // Public routes için ayrı router
+        const publicRoutes = express.Router();
+        
+        // Önce mevcut public routes'ları yükle (proposals için)
+        const existingPublicRoutes = require('../routes/public');
+        publicRoutes.use('/', existingPublicRoutes);
+        
+        // Sonra modül public routes'larını yükle  
+        console.log('🌐 Public modül routes yükleniyor...');
+        const publicLoadResults = await moduleLoader.loadPublicModules(publicRoutes);
         
         // Yükleme sonuçlarını rapor et
-        loadResults.forEach(result => {
+        console.log('\n📊 Dashboard Modülleri:');
+        dashboardLoadResults.forEach(result => {
             if (result.loaded) {
                 console.log(`✅ ${result.config.displayName || result.name} (${result.config.version || '1.0.0'})`);
             } else {
-                console.log(`❌ ${result.name} yüklenemedi`);
+                console.log(`❌ ${result.name} dashboard yüklenemedi`);
             }
         });
         
-        // Dashboard routes'ları app'e ekle
-        app.use('/dashboard', dashboardRoutes);
+        console.log('\n🌐 Public Modülleri:');
+        publicLoadResults.forEach(result => {
+            if (result.loaded) {
+                console.log(`✅ ${result.config.displayName || result.name} public (${result.config.version || '1.0.0'})`);
+            } else {
+                console.log(`❌ ${result.name} public yüklenemedi`);
+            }
+        });
         
-        // Public proposal route'ları
-        const publicRoutes = require('../routes/public');
+        // Routes'ları app'e ekle
+        app.use('/dashboard', dashboardRoutes);
         app.use('/', publicRoutes);
         
         // Global 404 handler - EN SONDA OLMALI
@@ -52,7 +70,7 @@ const setupDashboardModule = async (app) => {
         });
         
         console.log('🎉 Modüler Dashboard başarıyla yüklendi!');
-        console.log(`📊 Toplam ${loadResults.length} modül tarandı`);
+        console.log(`📊 Toplam ${dashboardLoadResults.length} modül tarandı`);
         
         // Global olarak moduleLoader'ı erişilebilir yap
         app.locals.moduleLoader = moduleLoader;

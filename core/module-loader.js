@@ -88,7 +88,7 @@ class ModuleLoader {
     /**
      * Modül route'larını Express router'ına yükle
      */
-    async loadModuleRoutes(moduleName, router) {
+    async loadModuleRoutes(moduleName, router, routeType = 'dashboard') {
         try {
             const modulePath = path.join(__dirname, '../modules', moduleName, 'routes.js');
             
@@ -107,11 +107,15 @@ class ModuleLoader {
                 try {
                     const enabledModules = await this.getEnabledModules();
                     if (!enabledModules.includes(moduleName)) {
-                        // HTML response için yönlendirme
+                        // Public route'lar için farklı davranış
+                        if (routeType === 'public') {
+                            return res.status(404).send('Sayfa bulunamadı');
+                        }
+                        
+                        // Dashboard route'lar için yönlendirme
                         if (req.headers.accept && req.headers.accept.includes('text/html')) {
                             return res.redirect('/dashboard?error=module_disabled&module=' + moduleName);
                         }
-                        // JSON response için hata
                         return res.status(403).json({ 
                             error: `${moduleName} modülü devre dışı`,
                             redirect: '/dashboard'
@@ -123,18 +127,25 @@ class ModuleLoader {
                 }
             };
             
-            // TÜM modülların route'larını yükle ama guard ile koru
-            router.use('/', moduleGuard, moduleRoutes);
+            // Route type'a göre farklı mount
+            if (routeType === 'public') {
+                // Public route'lar için root'ta mount et
+                router.use('/', moduleGuard, moduleRoutes.publicRouter || moduleRoutes);
+            } else {
+                // Dashboard route'lar için normal mount
+                router.use('/', moduleGuard, moduleRoutes.dashboardRouter || moduleRoutes);
+            }
             
             this.loadedModules.set(moduleName, {
                 routes: moduleRoutes,
-                loadedAt: new Date()
+                loadedAt: new Date(),
+                routeType
             });
 
-            logger.module(moduleName, 'routes loaded', true);
+            logger.module(moduleName, `${routeType} routes loaded`, true);
             return true;
         } catch (error) {
-            logger.module(moduleName, 'routes load failed', false, { error: error.message });
+            logger.module(moduleName, `${routeType} routes load failed`, false, { error: error.message });
             return false;
         }
     }
@@ -142,29 +153,37 @@ class ModuleLoader {
     /**
      * TÜM modülleri yükle (guard middleware ile korunarak)
      */
-    async loadAllModules(router) {
+    async loadAllModules(router, routeType = 'dashboard') {
         // Önce modülleri tara
         await this.scanModules();
         
         // Aktif modülleri al (sadece log için)
         const enabledModules = await this.getEnabledModules();
-        console.log('Aktif modüller:', enabledModules);
+        console.log(`Aktif modüller (${routeType}):`, enabledModules);
 
         const loadResults = [];
         
         // TÜM modülleri yükle (aktif/deaktif fark etmeksizin)
         for (const [moduleName, config] of this.moduleConfigs) {
             // Routes'ları yükle (guard ile korunacak)
-            const loaded = await this.loadModuleRoutes(moduleName, router);
+            const loaded = await this.loadModuleRoutes(moduleName, router, routeType);
             loadResults.push({
                 name: moduleName,
                 loaded: loaded,
                 config: config,
-                enabled: enabledModules.includes(moduleName)
+                enabled: enabledModules.includes(moduleName),
+                routeType
             });
         }
 
         return loadResults;
+    }
+
+    /**
+     * Public modül route'larını yükle
+     */
+    async loadPublicModules(router) {
+        return await this.loadAllModules(router, 'public');
     }
     
     /**

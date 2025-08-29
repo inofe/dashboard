@@ -3,7 +3,8 @@ const path = require('path');
 const ejs = require('ejs');
 const multer = require('multer');
 const sanitizeHtml = require('sanitize-html');
-const router = express.Router();
+const dashboardRouter = express.Router();
+const publicRouter = express.Router();
 const { requireAuth } = require('../../core/auth');
 
 // sanitize-html konfigürasyonu
@@ -105,7 +106,7 @@ const renderCMSView = (viewName, data = {}) => {
 };
 
 // CMS Ana Sayfa
-router.get('/cms', requireAuth, async (req, res) => {
+dashboardRouter.get('/cms', requireAuth, async (req, res) => {
     try {
         // İstatistikler al
         const { getAllPages, getAllPosts, getAllMediaFiles } = require('../../core/database');
@@ -130,7 +131,7 @@ router.get('/cms', requireAuth, async (req, res) => {
 });
 
 // Sayfalar Yönetimi
-router.get('/cms/pages', requireAuth, async (req, res) => {
+dashboardRouter.get('/cms/pages', requireAuth, async (req, res) => {
     try {
         // Database'den sayfaları al
         const { getAllPages } = require('../../core/database');
@@ -149,7 +150,7 @@ router.get('/cms/pages', requireAuth, async (req, res) => {
 });
 
 // Yeni Sayfa Oluşturma
-router.get('/cms/pages/create', requireAuth, async (req, res) => {
+dashboardRouter.get('/cms/pages/create', requireAuth, async (req, res) => {
     try {
         const html = await renderCMSView('page-create', { 
             user: req.session.user,
@@ -163,7 +164,7 @@ router.get('/cms/pages/create', requireAuth, async (req, res) => {
     }
 });
 
-router.post('/cms/pages/create', requireAuth, async (req, res) => {
+dashboardRouter.post('/cms/pages/create', requireAuth, async (req, res) => {
     try {
         let { title, content, meta_title, meta_description, status } = req.body;
         
@@ -219,7 +220,7 @@ router.post('/cms/pages/create', requireAuth, async (req, res) => {
 });
 
 // Blog Yazıları Yönetimi
-router.get('/cms/posts', requireAuth, async (req, res) => {
+dashboardRouter.get('/cms/posts', requireAuth, async (req, res) => {
     try {
         // Database'den blog yazılarını al
         const { getAllPosts } = require('../../core/database');
@@ -238,7 +239,7 @@ router.get('/cms/posts', requireAuth, async (req, res) => {
 });
 
 // Yeni Blog Yazısı Oluşturma
-router.get('/cms/posts/create', requireAuth, async (req, res) => {
+dashboardRouter.get('/cms/posts/create', requireAuth, async (req, res) => {
     try {
         const html = await renderCMSView('post-create', { 
             user: req.session.user,
@@ -252,7 +253,7 @@ router.get('/cms/posts/create', requireAuth, async (req, res) => {
     }
 });
 
-router.post('/cms/posts/create', requireAuth, async (req, res) => {
+dashboardRouter.post('/cms/posts/create', requireAuth, async (req, res) => {
     try {
         let { title, content, meta_title, meta_description, status, tags } = req.body;
         
@@ -313,7 +314,7 @@ router.post('/cms/posts/create', requireAuth, async (req, res) => {
 });
 
 // Medya Library
-router.get('/cms/media', requireAuth, async (req, res) => {
+dashboardRouter.get('/cms/media', requireAuth, async (req, res) => {
     try {
         // Database'den medya dosyalarını al
         const { getAllMediaFiles } = require('../../core/database');
@@ -332,7 +333,7 @@ router.get('/cms/media', requireAuth, async (req, res) => {
 });
 
 // Medya Dosyası Yükleme
-router.post('/cms/media', requireAuth, upload.single('media_file'), async (req, res) => {
+dashboardRouter.post('/cms/media', requireAuth, upload.single('media_file'), async (req, res) => {
     try {
         if (!req.file) {
             // Medya listesini al ve hata mesajı ile render et
@@ -380,7 +381,7 @@ router.post('/cms/media', requireAuth, upload.single('media_file'), async (req, 
 });
 
 // Sayfa Düzenleme
-router.get('/cms/pages/edit/:id', requireAuth, async (req, res) => {
+dashboardRouter.get('/cms/pages/edit/:id', requireAuth, async (req, res) => {
     try {
         const { getPageById } = require('../../core/database');
         const page = await getPageById(req.params.id);
@@ -401,7 +402,7 @@ router.get('/cms/pages/edit/:id', requireAuth, async (req, res) => {
     }
 });
 
-router.post('/cms/pages/edit/:id', requireAuth, async (req, res) => {
+dashboardRouter.post('/cms/pages/edit/:id', requireAuth, async (req, res) => {
     try {
         let { title, content, meta_title, meta_description, status } = req.body;
         
@@ -458,7 +459,7 @@ router.post('/cms/pages/edit/:id', requireAuth, async (req, res) => {
 
 
 // Sayfa Status Değiştirme
-router.post('/cms/pages/toggle-status/:id', requireAuth, async (req, res) => {
+dashboardRouter.post('/cms/pages/toggle-status/:id', requireAuth, async (req, res) => {
     try {
         const { getPageById, updatePage } = require('../../core/database');
         const page = await getPageById(req.params.id);
@@ -506,7 +507,7 @@ router.post('/cms/pages/toggle-status/:id', requireAuth, async (req, res) => {
 });
 
 // Sayfa Silme
-router.post('/cms/pages/delete/:id', requireAuth, async (req, res) => {
+dashboardRouter.post('/cms/pages/delete/:id', requireAuth, async (req, res) => {
     try {
         const { deletePage } = require('../../core/database');
         await deletePage(req.params.id);
@@ -517,7 +518,7 @@ router.post('/cms/pages/delete/:id', requireAuth, async (req, res) => {
 });
 
 // Blog Yazısı Düzenleme
-router.get('/cms/posts/edit/:id', requireAuth, async (req, res) => {
+dashboardRouter.get('/cms/posts/edit/:id', requireAuth, async (req, res) => {
     try {
         const { getPostById } = require('../../core/database');
         const post = await getPostById(req.params.id);
@@ -538,7 +539,7 @@ router.get('/cms/posts/edit/:id', requireAuth, async (req, res) => {
     }
 });
 
-router.post('/cms/posts/edit/:id', requireAuth, async (req, res) => {
+dashboardRouter.post('/cms/posts/edit/:id', requireAuth, async (req, res) => {
     try {
         let { title, content, meta_title, meta_description, tags, status } = req.body;
         
@@ -600,7 +601,7 @@ router.post('/cms/posts/edit/:id', requireAuth, async (req, res) => {
 
 
 // Blog Yazısı Status Değiştirme
-router.post('/cms/posts/toggle-status/:id', requireAuth, async (req, res) => {
+dashboardRouter.post('/cms/posts/toggle-status/:id', requireAuth, async (req, res) => {
     try {
         const { getPostById, updatePost } = require('../../core/database');
         const post = await getPostById(req.params.id);
@@ -649,7 +650,7 @@ router.post('/cms/posts/toggle-status/:id', requireAuth, async (req, res) => {
 });
 
 // Blog Yazısı Silme
-router.post('/cms/posts/delete/:id', requireAuth, async (req, res) => {
+dashboardRouter.post('/cms/posts/delete/:id', requireAuth, async (req, res) => {
     try {
         const { deletePost } = require('../../core/database');
         await deletePost(req.params.id);
@@ -660,7 +661,7 @@ router.post('/cms/posts/delete/:id', requireAuth, async (req, res) => {
 });
 
 // Medya Dosyası Silme
-router.post('/cms/media/delete/:id', requireAuth, async (req, res) => {
+dashboardRouter.post('/cms/media/delete/:id', requireAuth, async (req, res) => {
     try {
         const { deleteMediaFile, getMediaFileById } = require('../../core/database');
         const mediaFile = await getMediaFileById(req.params.id);
@@ -685,4 +686,183 @@ router.post('/cms/media/delete/:id', requireAuth, async (req, res) => {
     }
 });
 
-module.exports = router;
+// Public route'ların kodu (routes/public.js'den taşınacak)
+const { getAllPosts, getAllPages, getSettingNew } = require('../../core/database');
+const { renderWithTheme, render404Page, getFaviconHTML } = require('../../core/theme');
+
+// Public frontend için render fonksiyonu - TEMA DESTEKLI
+const renderPublicView = async (viewName, data = {}) => {
+    try {
+        // Favicon HTML'i tüm sayfalara ekle
+        const faviconHTML = await getFaviconHTML();
+        const enhancedData = {
+            ...data,
+            faviconHTML
+        };
+
+        return await renderWithTheme(viewName, enhancedData);
+    } catch (error) {
+        console.error(`Theme render error for ${viewName}:`, error);
+        // Fallback to original method
+        const viewPath = path.join(__dirname, '../views', 'public', `${viewName}.ejs`);
+        const faviconHTML = await getFaviconHTML();
+        return await ejs.renderFile(viewPath, { ...data, faviconHTML });
+    }
+};
+
+// İçerik güvenlik fonksiyonu
+const sanitizeContentForDisplay = (content) => {
+    if (!content) return '';
+
+    const result = sanitizeHtml(content, {
+        allowedTags: [
+            'p', 'div', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'a', 'ul', 'ol', 'li',
+            'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'img', 'blockquote',
+            'pre', 'code', 'table', 'thead', 'tbody', 'tr', 'td', 'th', 'span'
+        ],
+        allowedAttributes: {
+            '*': ['style', 'class'],
+            'a': ['href', 'target'],
+            'img': ['src', 'alt', 'width', 'height'],
+            'table': ['border', 'cellpadding', 'cellspacing'],
+            'td': ['colspan', 'rowspan'],
+            'th': ['colspan', 'rowspan']
+        },
+        allowedStyles: {
+            '*': {
+                'color': [/^#(0x)?[0-9a-f]+$/i, /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/],
+                'text-align': [/^left$/, /^right$/, /^center$/, /^justify$/],
+                'font-weight': [/^bold$/, /^normal$/, /^\d+$/],
+                'font-style': [/^italic$/, /^normal$/],
+                'text-decoration': [/^underline$/, /^line-through$/, /^none$/],
+                'background-color': [/^#(0x)?[0-9a-f]+$/i, /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/]
+            }
+        },
+        disallowedTagsMode: 'discard',
+        allowedSchemes: ['http', 'https', 'mailto'],
+        allowedSchemesByTag: {
+            img: ['http', 'https', 'data']
+        }
+    });
+
+    return result;
+};
+
+// ===== PUBLIC ROUTES =====
+
+// Ana sayfa - Son blog yazıları ve sayfalar
+publicRouter.get('/', async (req, res) => {
+    try {
+        // Yayınlanmış içerikleri al
+        const allPosts = await getAllPosts();
+        const allPages = await getAllPages();
+
+        const publishedPosts = allPosts.filter(post => post.status === 'published').slice(0, 6);
+        const publishedPages = allPages.filter(page => page.status === 'published');
+
+        // Site ayarları
+        const siteName = await getSettingNew('general', 'company_name', 'Website');
+        const siteDescription = await getSettingNew('general', 'site_description', 'Hoş geldiniz');
+
+        const html = await renderPublicView('home', {
+            siteName,
+            siteDescription,
+            recentPosts: publishedPosts,
+            pages: publishedPages
+        });
+        res.send(html);
+    } catch (error) {
+        res.status(500).send('Ana sayfa yüklenirken hata oluştu');
+    }
+});
+
+// Blog ana sayfası
+publicRouter.get('/blog', async (req, res) => {
+    try {
+        const allPosts = await getAllPosts();
+        const publishedPosts = allPosts.filter(post => post.status === 'published');
+
+        const siteName = await getSettingNew('general', 'company_name', 'Website');
+        const allPages = await getAllPages();
+        const publishedPages = allPages.filter(page => page.status === 'published');
+
+        const html = await renderPublicView('blog', {
+            siteName,
+            posts: publishedPosts,
+            pages: publishedPages
+        });
+        res.send(html);
+    } catch (error) {
+        res.status(500).send('Blog sayfası yüklenirken hata oluştu');
+    }
+});
+
+// Blog yazısı detay
+publicRouter.get('/blog/:slug', async (req, res) => {
+    try {
+        const allPosts = await getAllPosts();
+        const post = allPosts.find(p => p.slug === req.params.slug && p.status === 'published');
+
+        if (!post) {
+            const html = await render404Page();
+            return res.status(404).send(html);
+        }
+
+        const siteName = await getSettingNew('general', 'company_name', 'Website');
+        const allPages = await getAllPages();
+        const publishedPages = allPages.filter(page => page.status === 'published');
+
+        // İçeriği güvenli hale getir
+        const sanitizedPost = {
+            ...post,
+            content: sanitizeContentForDisplay(post.content),
+            excerpt: sanitizeContentForDisplay(post.excerpt)
+        };
+
+        const html = await renderPublicView('blog-post', {
+            siteName,
+            post: sanitizedPost,
+            pages: publishedPages
+        });
+        res.send(html);
+    } catch (error) {
+        res.status(500).send('Blog yazısı yüklenirken hata oluştu');
+    }
+});
+
+// Sayfa detay
+publicRouter.get('/page/:slug', async (req, res) => {
+    try {
+        const allPages = await getAllPages();
+        const page = allPages.find(p => p.slug === req.params.slug && p.status === 'published');
+
+        if (!page) {
+            const html = await render404Page();
+            return res.status(404).send(html);
+        }
+
+        const siteName = await getSettingNew('general', 'company_name', 'Website');
+        const publishedPages = allPages.filter(p => p.status === 'published');
+
+        // İçeriği güvenli hale getir
+        const sanitizedPage = {
+            ...page,
+            content: sanitizeContentForDisplay(page.content)
+        };
+
+        const html = await renderPublicView('page', {
+            siteName,
+            page: sanitizedPage,
+            pages: publishedPages
+        });
+        res.send(html);
+    } catch (error) {
+        console.error('Page route error:', error);
+        res.status(500).send('Sayfa yüklenirken hata oluştu: ' + error.message);
+    }
+});
+
+// ===== DASHBOARD ROUTES (tüm mevcut route'ları dashboardRouter'a taşı) =====
+// (Mevcut tüm route'ları dashboardRouter kullanacak şekilde değiştir)
+
+module.exports = { dashboardRouter, publicRouter };

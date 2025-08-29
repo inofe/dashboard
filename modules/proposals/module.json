@@ -5,6 +5,55 @@
   "version": "1.0.0",
   "core": true,
   "category": "business",
+  "dashboardRoutes": {
+    "/proposals": {
+      "method": "GET",
+      "handler": "routes.js",
+      "description": "Teklif listesi"
+    },
+    "/create-proposal": {
+      "method": ["GET", "POST"],
+      "handler": "routes.js", 
+      "description": "Yeni teklif oluşturma"
+    },
+    "/proposal/:id": {
+      "method": "GET",
+      "handler": "routes.js",
+      "description": "Teklif detayı"
+    },
+    "/edit-proposal/:id": {
+      "method": ["GET", "POST"],
+      "handler": "routes.js",
+      "description": "Teklif düzenleme"
+    },
+    "/toggle-proposal/:id": {
+      "method": "POST", 
+      "handler": "routes.js",
+      "description": "Teklif durumu değiştirme"
+    },
+    "/delete-proposal/:id": {
+      "method": "POST",
+      "handler": "routes.js",
+      "description": "Teklif silme"
+    }
+  },
+  "publicRoutes": {
+    "/proposal/:id": {
+      "method": "GET",
+      "handler": "routes.js",
+      "description": "Public teklif görüntüleme"
+    },
+    "/proposal/:id/verify": {
+      "method": "POST",
+      "handler": "routes.js",
+      "description": "Email doğrulama"
+    },
+    "/proposal/:id/response": {
+      "method": "POST", 
+      "handler": "routes.js",
+      "description": "Teklif yanıtlama"
+    }
+  },
   "routes": {
     "/proposals": {
       "method": "GET",
